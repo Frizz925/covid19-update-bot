@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"os"
+	"time"
 
+	"github.com/frizz925/covid19japan-chatbot/internal/config"
 	"github.com/frizz925/covid19japan-chatbot/internal/fetcher"
 	"github.com/frizz925/covid19japan-chatbot/internal/publisher"
 	"github.com/frizz925/covid19japan-chatbot/internal/routines"
@@ -10,15 +13,10 @@ import (
 )
 
 const (
-	ENV_DISCORD_BOT_TOKEN  = "DISCORD_BOT_TOKEN"
-	ENV_DISCORD_CHANNEL_ID = "DISCORD_CHANNEL_ID"
-
 	DIR_TEMPLATES = "templates"
 	DIR_FIXTURES  = "fixtures"
 
-	DATA_SOURCE_BASE_URL = "https://data.covid19japan.com/"
-
-	FETCH_FROM_FIXTURE = false
+	FETCH_FROM_FIXTURE = true
 	PUBLISH_TO_STDOUT  = false
 )
 
@@ -29,6 +27,8 @@ func main() {
 }
 
 func run() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
 	if err := godotenv.Load(); err != nil {
 		return err
 	}
@@ -37,20 +37,18 @@ func run() error {
 	if FETCH_FROM_FIXTURE {
 		fet = fetcher.NewFixtureFetcher(DIR_FIXTURES)
 	} else {
-		var err error
-		fet, err = fetcher.NewHTTPFetcher(DATA_SOURCE_BASE_URL)
-		if err != nil {
-			return err
-		}
+		fet = fetcher.NewHTTPFetcher()
 	}
 
 	var pub publisher.Publisher
 	if PUBLISH_TO_STDOUT {
 		pub = publisher.NewWritePublisher(os.Stdout)
 	} else {
-		token := os.Getenv(ENV_DISCORD_BOT_TOKEN)
-		channelID := os.Getenv(ENV_DISCORD_CHANNEL_ID)
-		dp, err := publisher.NewDiscordPublisher(token, channelID)
+		cfg, err := config.NewEnvSource().Load(ctx)
+		if err != nil {
+			return err
+		}
+		dp, err := publisher.NewDiscordPublisher(&cfg.Discord)
 		if err != nil {
 			return err
 		}
