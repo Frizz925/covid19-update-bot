@@ -1,0 +1,10 @@
+{{define "daily" -}}
+Daily Japan's COVID-19 update
+{{ .Date }}
+
+Confirmed: {{.ConfirmedCumulative}} (+{{.Confirmed}})
+Recovered: {{.RecoveredCumulative}} (+{{.Recovered}})
+Deceased: {{.DeceasedCumulative}} (+{{.Deceased}})
+
+Data from https://covid19japan.com/
+{{- end}}
