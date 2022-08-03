@@ -1,6 +1,8 @@
 package publisher
 
 import (
+	"log"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/frizz925/covid19japan-chatbot/internal/config"
 )
@@ -22,9 +24,11 @@ func NewDiscordPublisher(cfg *config.Discord) (*DiscordPublisher, error) {
 func (dp *DiscordPublisher) Publish(message string) error {
 	for _, cid := range dp.channelIDs {
 		_, err := dp.ChannelMessageSend(cid, message)
-		if err != nil {
-			return err
+		if err == nil {
+			continue
 		}
+		// HACK: Just log the errors in case we failed to send the message
+		log.Printf("Failed to send message to channel ID %s, error: %s", cid, err)
 	}
 	return nil
 }
