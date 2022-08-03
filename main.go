@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/frizz925/covid19japan-chatbot/internal/config"
 	"github.com/frizz925/covid19japan-chatbot/internal/fetcher"
 	"github.com/frizz925/covid19japan-chatbot/internal/publisher"
@@ -16,32 +17,51 @@ const (
 	DIR_TEMPLATES = "templates"
 	DIR_FIXTURES  = "fixtures"
 
-	FETCH_FROM_FIXTURE = true
-	PUBLISH_TO_STDOUT  = false
+	AWS_LAMBDA_ENV_CHECK = "LAMBDA_TASK_ROOT"
 )
 
+type runConfig struct {
+	fetchFromFixture bool
+	publishToStdout  bool
+}
+
 func main() {
-	if err := run(); err != nil {
+	if _, ok := os.LookupEnv(AWS_LAMBDA_ENV_CHECK); ok {
+		lambda.Start(lambdaHandler)
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
+	if err := godotenv.Load(); err != nil {
+		panic(err)
+	}
+	rcfg := &runConfig{
+		fetchFromFixture: true,
+		publishToStdout:  true,
+	}
+	if err := run(ctx, rcfg); err != nil {
 		panic(err)
 	}
 }
 
-func run() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
-	defer cancel()
-	if err := godotenv.Load(); err != nil {
-		return err
-	}
+func lambdaHandler(ctx context.Context) error {
+	return run(ctx, &runConfig{
+		fetchFromFixture: false,
+		publishToStdout:  false,
+	})
+}
 
+func run(ctx context.Context, cfg *runConfig) error {
 	var fet fetcher.Fetcher
-	if FETCH_FROM_FIXTURE {
+	if cfg.fetchFromFixture {
 		fet = fetcher.NewFixtureFetcher(DIR_FIXTURES)
 	} else {
 		fet = fetcher.NewHTTPFetcher()
 	}
 
 	var pub publisher.Publisher
-	if PUBLISH_TO_STDOUT {
+	if cfg.publishToStdout {
 		pub = publisher.NewWritePublisher(os.Stdout)
 	} else {
 		cfg, err := config.NewEnvSource().Load(ctx)
