@@ -13,7 +13,7 @@ const (
 
 type envSource struct{}
 
-func NewEnvSource() Source {
+func EnvSource() Source {
 	return &envSource{}
 }
 

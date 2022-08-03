@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
 )
 
@@ -15,7 +14,7 @@ type awsSecretsSource struct {
 }
 
 func AWSSecretsSource(ctx context.Context, secretId string) (Source, error) {
-	cfg, err := config.LoadDefaultConfig(ctx)
+	cfg, err := loadAWSConfig(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -25,9 +24,9 @@ func AWSSecretsSource(ctx context.Context, secretId string) (Source, error) {
 	}, nil
 }
 
-func (sm *awsSecretsSource) Load(ctx context.Context) (*Config, error) {
-	res, err := sm.GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{
-		SecretId: aws.String(sm.SecretId),
+func (s *awsSecretsSource) Load(ctx context.Context) (*Config, error) {
+	res, err := s.GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{
+		SecretId: aws.String(s.SecretId),
 	})
 	if err != nil {
 		return nil, err

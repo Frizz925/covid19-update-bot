@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/frizz925/covid19japan-chatbot/internal/config"
+	"github.com/frizz925/covid19japan-chatbot/internal/data"
 	"github.com/frizz925/covid19japan-chatbot/internal/fetcher"
 	"github.com/frizz925/covid19japan-chatbot/internal/publisher"
 	"github.com/frizz925/covid19japan-chatbot/internal/routines"
@@ -21,6 +22,7 @@ const (
 )
 
 type runConfig struct {
+	lambdaEvent      *data.LambdaEvent
 	fetchFromFixture bool
 	publishToStdout  bool
 }
@@ -45,8 +47,9 @@ func main() {
 	}
 }
 
-func lambdaHandler(ctx context.Context) error {
+func lambdaHandler(ctx context.Context, event data.LambdaEvent) error {
 	return run(ctx, &runConfig{
+		lambdaEvent:      &event,
 		fetchFromFixture: false,
 		publishToStdout:  false,
 	})
@@ -64,7 +67,13 @@ func run(ctx context.Context, cfg *runConfig) error {
 	if cfg.publishToStdout {
 		pub = publisher.NewWritePublisher(os.Stdout)
 	} else {
-		cfg, err := config.NewEnvSource().Load(ctx)
+		var src config.Source
+		if cfg.lambdaEvent != nil {
+			src = config.AWSLambdaSource(cfg.lambdaEvent)
+		} else {
+			src = config.EnvSource()
+		}
+		cfg, err := src.Load(ctx)
 		if err != nil {
 			return err
 		}
@@ -77,15 +86,17 @@ func run(ctx context.Context, cfg *runConfig) error {
 		}
 		pub = dp
 	}
-	defer func(pub publisher.Publisher) {
-		if v, ok := pub.(*publisher.DiscordPublisher); ok {
-			v.Close()
-		}
-	}(pub)
+	defer cleanup(pub)
 
 	return routines.DailyUpdate(&routines.DailyUpdateConfig{
 		Fetcher:     fet,
 		Publisher:   pub,
 		TemplateDir: DIR_TEMPLATES,
 	})
+}
+
+func cleanup(pub publisher.Publisher) {
+	if v, ok := pub.(*publisher.DiscordPublisher); ok {
+		v.Close()
+	}
 }
