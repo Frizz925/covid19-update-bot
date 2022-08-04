@@ -22,8 +22,15 @@ func (s *awsLambdaSource) Load(ctx context.Context) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	if s.event.ChannelIDs != nil {
-		cfg.Discord.ChannelIDs = s.event.ChannelIDs
+	if s.event.CountryID != "" {
+		cfg.CountryID = s.event.CountryID
+	}
+	if s.event.Channels != nil {
+		cids := make([]string, len(s.event.Channels))
+		for idx, ch := range s.event.Channels {
+			cids[idx] = ch.ID
+		}
+		cfg.Discord.ChannelIDs = cids
 	}
 	return cfg, nil
 }
