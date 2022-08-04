@@ -9,6 +9,7 @@ import (
 	"github.com/frizz925/covid19japan-chatbot/internal/config"
 	"github.com/frizz925/covid19japan-chatbot/internal/data"
 	"github.com/frizz925/covid19japan-chatbot/internal/fetcher"
+	"github.com/frizz925/covid19japan-chatbot/internal/fetcher/japan"
 	"github.com/frizz925/covid19japan-chatbot/internal/publisher"
 	"github.com/frizz925/covid19japan-chatbot/internal/routines"
 	"github.com/joho/godotenv"
@@ -18,17 +19,18 @@ const (
 	DIR_TEMPLATES = "templates"
 	DIR_FIXTURES  = "fixtures"
 
-	AWS_LAMBDA_ENV_CHECK = "LAMBDA_TASK_ROOT"
+	ENV_CHECK_AWS_LAMBDA = "LAMBDA_TASK_ROOT"
+	ENV_CHECK_STAGING    = "DISCORD_BOT_STAGING"
 )
 
 type runConfig struct {
 	lambdaEvent      *data.LambdaEvent
-	fetchFromFixture bool
-	publishToStdout  bool
+	fetchFromSource  bool
+	publishToDiscord bool
 }
 
 func main() {
-	if _, ok := os.LookupEnv(AWS_LAMBDA_ENV_CHECK); ok {
+	if _, ok := os.LookupEnv(ENV_CHECK_AWS_LAMBDA); ok {
 		lambda.Start(lambdaHandler)
 		return
 	}
@@ -38,9 +40,11 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		panic(err)
 	}
-	rcfg := &runConfig{
-		fetchFromFixture: true,
-		publishToStdout:  true,
+
+	rcfg := &runConfig{}
+	if os.Getenv(ENV_CHECK_STAGING) == "true" {
+		rcfg.fetchFromSource = true
+		rcfg.publishToDiscord = true
 	}
 	if err := run(ctx, rcfg); err != nil {
 		panic(err)
@@ -50,23 +54,21 @@ func main() {
 func lambdaHandler(ctx context.Context, event data.LambdaEvent) error {
 	return run(ctx, &runConfig{
 		lambdaEvent:      &event,
-		fetchFromFixture: false,
-		publishToStdout:  false,
+		fetchFromSource:  true,
+		publishToDiscord: true,
 	})
 }
 
 func run(ctx context.Context, cfg *runConfig) error {
 	var fet fetcher.Fetcher
-	if cfg.fetchFromFixture {
-		fet = fetcher.NewFixtureFetcher(DIR_FIXTURES)
+	if cfg.fetchFromSource {
+		fet = japan.NewHTTPFetcher()
 	} else {
-		fet = fetcher.NewHTTPFetcher()
+		fet = japan.NewFixtureFetcher(DIR_FIXTURES)
 	}
 
 	var pub publisher.Publisher
-	if cfg.publishToStdout {
-		pub = publisher.NewWritePublisher(os.Stdout)
-	} else {
+	if cfg.publishToDiscord {
 		var src config.Source
 		if cfg.lambdaEvent != nil {
 			src = config.AWSLambdaSource(cfg.lambdaEvent)
@@ -85,6 +87,8 @@ func run(ctx context.Context, cfg *runConfig) error {
 			return err
 		}
 		pub = dp
+	} else {
+		pub = publisher.NewWritePublisher(os.Stdout)
 	}
 	defer cleanup(pub)
 

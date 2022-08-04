@@ -1,10 +1,11 @@
-package fetcher
+package japan
 
 import (
 	"io"
 	"net/http"
 
 	"github.com/frizz925/covid19japan-chatbot/internal/data"
+	"github.com/frizz925/covid19japan-chatbot/internal/data/japan"
 )
 
 const COVID19_JAPAN_URL = "https://data.covid19japan.com/summary/latest.json"
@@ -23,13 +24,21 @@ func NewHTTPFetcher(client ...*http.Client) *HTTPFetcher {
 	}
 }
 
-func (hf *HTTPFetcher) SummaryLatest() (*data.SummaryLatest, error) {
+func (hf *HTTPFetcher) SummaryLatest() (*japan.SummaryLatest, error) {
 	rc, err := hf.fetch(COVID19_JAPAN_URL)
 	if err != nil {
 		return nil, err
 	}
 	defer rc.Close()
-	return data.ParseSummaryLatest(rc)
+	return japan.ParseSummaryLatest(rc)
+}
+
+func (hf *HTTPFetcher) DailySummary() (*data.DailySummary, error) {
+	sl, err := hf.SummaryLatest()
+	if err != nil {
+		return nil, err
+	}
+	return toNormalizedDailySummary(sl)
 }
 
 func (hf *HTTPFetcher) fetch(url string) (io.ReadCloser, error) {

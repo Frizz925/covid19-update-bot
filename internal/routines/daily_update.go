@@ -13,15 +13,15 @@ type DailyUpdateConfig struct {
 }
 
 func DailyUpdate(cfg *DailyUpdateConfig) error {
-	sl, err := cfg.Fetcher.SummaryLatest()
-	if err != nil {
-		return err
-	}
 	gen, err := templates.NewGenerator(cfg.TemplateDir)
 	if err != nil {
 		return err
 	}
-	message, err := gen.Daily(sl.Today())
+	ds, err := cfg.Fetcher.DailySummary()
+	if err != nil {
+		return err
+	}
+	message, err := gen.Daily(ds, "Data from https://covid19japan.com/")
 	if err != nil {
 		return err
 	}

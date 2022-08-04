@@ -1,8 +1,11 @@
-package data
+package japan
 
 import (
 	"encoding/json"
 	"io"
+	"time"
+
+	"github.com/frizz925/covid19japan-chatbot/internal/data"
 )
 
 type SummaryLatest struct {
@@ -38,4 +41,26 @@ func (sl *SummaryLatest) Today() *DailySummary {
 		return nil
 	}
 	return &sl.Daily[count-1]
+}
+
+func (ds *DailySummary) Normalize() (*data.DailySummary, error) {
+	date, err := parseDailyDate(ds.Date)
+	if err != nil {
+		return nil, err
+	}
+	return &data.DailySummary{
+		Country:             "Japan",
+		CountryID:           "JP",
+		DateTime:            date,
+		Confirmed:           ds.Confirmed,
+		Recovered:           ds.Recovered,
+		Deceased:            ds.Deceased,
+		ConfirmedCumulative: ds.ConfirmedCumulative,
+		RecoveredCumulative: ds.RecoveredCumulative,
+		DeceasedCumulative:  ds.DeceasedCumulative,
+	}, nil
+}
+
+func parseDailyDate(text string) (time.Time, error) {
+	return time.Parse("2006-01-02", text)
 }

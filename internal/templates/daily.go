@@ -1,7 +1,7 @@
 package templates
 
 import (
-	"time"
+	"strings"
 
 	"github.com/frizz925/covid19japan-chatbot/internal/data"
 	"github.com/frizz925/covid19japan-chatbot/internal/formatters"
@@ -10,31 +10,31 @@ import (
 const TEMPLATE_NAME_DAILY = "daily"
 
 type dailyData struct {
+	Country             string
+	Date                string
 	Confirmed           string
 	Recovered           string
 	Deceased            string
 	ConfirmedCumulative string
 	RecoveredCumulative string
 	DeceasedCumulative  string
-	Date                string
+	Comment             string
 }
 
-func (g *Generator) Daily(ds *data.DailySummary) (string, error) {
-	date, err := parseDailyDate(ds.Date)
-	if err != nil {
-		return "", err
-	}
-	return g.Generate(TEMPLATE_NAME_DAILY, &dailyData{
+func (g *Generator) Daily(ds *data.DailySummary, comments ...string) (string, error) {
+	res, err := g.Generate(TEMPLATE_NAME_DAILY, &dailyData{
+		Country:             ds.Country,
+		Date:                ds.DateTime.Format("Monday, January 2, 2006"),
 		Confirmed:           formatters.IntToNumber(ds.Confirmed),
 		Recovered:           formatters.IntToNumber(ds.Recovered),
 		Deceased:            formatters.IntToNumber(ds.Deceased),
 		ConfirmedCumulative: formatters.IntToNumber(ds.ConfirmedCumulative),
 		RecoveredCumulative: formatters.IntToNumber(ds.RecoveredCumulative),
 		DeceasedCumulative:  formatters.IntToNumber(ds.DeceasedCumulative),
-		Date:                date.Format("Monday, January 2, 2006"),
+		Comment:             strings.Join(comments, "\n"),
 	})
-}
-
-func parseDailyDate(text string) (time.Time, error) {
-	return time.Parse("2006-01-02", text)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(res), nil
 }
