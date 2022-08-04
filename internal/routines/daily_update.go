@@ -1,15 +1,17 @@
 package routines
 
 import (
+	"github.com/frizz925/covid19japan-chatbot/internal/country"
 	"github.com/frizz925/covid19japan-chatbot/internal/fetcher"
 	"github.com/frizz925/covid19japan-chatbot/internal/publisher"
 	"github.com/frizz925/covid19japan-chatbot/internal/templates"
 )
 
 type DailyUpdateConfig struct {
+	CountryID   string
+	TemplateDir string
 	Fetcher     fetcher.Fetcher
 	Publisher   publisher.Publisher
-	TemplateDir string
 }
 
 func DailyUpdate(cfg *DailyUpdateConfig) error {
@@ -21,7 +23,7 @@ func DailyUpdate(cfg *DailyUpdateConfig) error {
 	if err != nil {
 		return err
 	}
-	message, err := gen.Daily(ds, "Data from https://covid19japan.com/")
+	message, err := gen.Daily(ds, country.Comments[cfg.CountryID])
 	if err != nil {
 		return err
 	}

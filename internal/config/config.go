@@ -1,7 +1,8 @@
 package config
 
 type Config struct {
-	Discord Discord `json:"discord"`
+	CountryID string  `json:"country_id"`
+	Discord   Discord `json:"discord"`
 }
 
 type Discord struct {

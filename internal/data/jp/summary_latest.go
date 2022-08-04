@@ -1,4 +1,4 @@
-package japan
+package jp
 
 import (
 	"encoding/json"

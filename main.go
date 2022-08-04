@@ -7,9 +7,10 @@ import (
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/frizz925/covid19japan-chatbot/internal/config"
+	"github.com/frizz925/covid19japan-chatbot/internal/country"
 	"github.com/frizz925/covid19japan-chatbot/internal/data"
 	"github.com/frizz925/covid19japan-chatbot/internal/fetcher"
-	"github.com/frizz925/covid19japan-chatbot/internal/fetcher/japan"
+	"github.com/frizz925/covid19japan-chatbot/internal/fetcher/factory"
 	"github.com/frizz925/covid19japan-chatbot/internal/publisher"
 	"github.com/frizz925/covid19japan-chatbot/internal/routines"
 	"github.com/joho/godotenv"
@@ -59,26 +60,36 @@ func lambdaHandler(ctx context.Context, event data.LambdaEvent) error {
 	})
 }
 
-func run(ctx context.Context, cfg *runConfig) error {
-	var fet fetcher.Fetcher
-	if cfg.fetchFromSource {
-		fet = japan.NewHTTPFetcher()
+func run(ctx context.Context, rcfg *runConfig) error {
+	var src config.Source
+	if rcfg.lambdaEvent != nil {
+		src = config.AWSLambdaSource(rcfg.lambdaEvent)
 	} else {
-		fet = japan.NewFixtureFetcher(DIR_FIXTURES)
+		src = config.EnvSource()
+	}
+	cfg, err := src.Load(ctx)
+	if err != nil {
+		return err
+	}
+
+	cid := country.ID_JAPAN
+	if cfg.CountryID != "" {
+		cid = cfg.CountryID
+	}
+
+	fac := factory.NewFetcherFactory(DIR_FIXTURES)
+	var fet fetcher.Fetcher
+	if rcfg.fetchFromSource {
+		fet, err = fac.HTTP(cid)
+	} else {
+		fet, err = fac.Fixture(cid)
+	}
+	if err != nil {
+		return err
 	}
 
 	var pub publisher.Publisher
-	if cfg.publishToDiscord {
-		var src config.Source
-		if cfg.lambdaEvent != nil {
-			src = config.AWSLambdaSource(cfg.lambdaEvent)
-		} else {
-			src = config.EnvSource()
-		}
-		cfg, err := src.Load(ctx)
-		if err != nil {
-			return err
-		}
+	if rcfg.publishToDiscord {
 		dp, err := publisher.NewDiscordPublisher(&cfg.Discord)
 		if err != nil {
 			return err
@@ -93,6 +104,7 @@ func run(ctx context.Context, cfg *runConfig) error {
 	defer cleanup(pub)
 
 	return routines.DailyUpdate(&routines.DailyUpdateConfig{
+		CountryID:   cid,
 		Fetcher:     fet,
 		Publisher:   pub,
 		TemplateDir: DIR_TEMPLATES,

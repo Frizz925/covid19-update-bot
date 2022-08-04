@@ -1,10 +1,8 @@
-package japan
+package jp
 
 import (
-	"path"
-
 	"github.com/frizz925/covid19japan-chatbot/internal/data"
-	"github.com/frizz925/covid19japan-chatbot/internal/data/japan"
+	jpData "github.com/frizz925/covid19japan-chatbot/internal/data/jp"
 	"github.com/frizz925/covid19japan-chatbot/internal/fetcher"
 )
 
@@ -17,18 +15,19 @@ type FixtureFetcher struct {
 func NewFixtureFetcher(dir string) *FixtureFetcher {
 	return &FixtureFetcher{
 		FixtureFetcher: fetcher.FixtureFetcher{
-			Directory: path.Join(dir, "japan"),
+			Directory: dir,
+			CountryID: "jp",
 		},
 	}
 }
 
-func (f *FixtureFetcher) SummaryLatest() (*japan.SummaryLatest, error) {
+func (f *FixtureFetcher) SummaryLatest() (*jpData.SummaryLatest, error) {
 	rc, err := f.ReadFile(FIXTURE_FILE_SUMMARY_LATEST)
 	if err != nil {
 		return nil, err
 	}
 	defer rc.Close()
-	return japan.ParseSummaryLatest(rc)
+	return jpData.ParseSummaryLatest(rc)
 }
 
 func (f *FixtureFetcher) DailySummary() (*data.DailySummary, error) {
