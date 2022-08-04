@@ -1,10 +1,10 @@
 package factory
 
 import (
-	"github.com/frizz925/covid19japan-chatbot/internal/country"
-	"github.com/frizz925/covid19japan-chatbot/internal/fetcher"
-	idFetcher "github.com/frizz925/covid19japan-chatbot/internal/fetcher/id"
-	jpFetcher "github.com/frizz925/covid19japan-chatbot/internal/fetcher/jp"
+	"github.com/frizz925/covid19-update-bot/internal/country"
+	"github.com/frizz925/covid19-update-bot/internal/fetcher"
+	idFetcher "github.com/frizz925/covid19-update-bot/internal/fetcher/id"
+	jpFetcher "github.com/frizz925/covid19-update-bot/internal/fetcher/jp"
 )
 
 type FetcherFactory struct {

@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/frizz925/covid19japan-chatbot/internal/config"
+	"github.com/frizz925/covid19-update-bot/internal/config"
 )
 
 type DiscordPublisher struct {

@@ -5,8 +5,8 @@ import (
 	"io"
 	"time"
 
-	"github.com/frizz925/covid19japan-chatbot/internal/country"
-	"github.com/frizz925/covid19japan-chatbot/internal/data"
+	"github.com/frizz925/covid19-update-bot/internal/country"
+	"github.com/frizz925/covid19-update-bot/internal/data"
 )
 
 type UpdateResponse struct {

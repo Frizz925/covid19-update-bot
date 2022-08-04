@@ -4,8 +4,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/frizz925/covid19japan-chatbot/internal/data"
-	jpData "github.com/frizz925/covid19japan-chatbot/internal/data/jp"
+	"github.com/frizz925/covid19-update-bot/internal/data"
+	jpData "github.com/frizz925/covid19-update-bot/internal/data/jp"
 )
 
 const COVID19_JP_URL = "https://data.covid19japan.com/summary/latest.json"

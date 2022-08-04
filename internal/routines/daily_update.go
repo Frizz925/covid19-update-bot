@@ -1,10 +1,10 @@
 package routines
 
 import (
-	"github.com/frizz925/covid19japan-chatbot/internal/country"
-	"github.com/frizz925/covid19japan-chatbot/internal/fetcher"
-	"github.com/frizz925/covid19japan-chatbot/internal/publisher"
-	"github.com/frizz925/covid19japan-chatbot/internal/templates"
+	"github.com/frizz925/covid19-update-bot/internal/country"
+	"github.com/frizz925/covid19-update-bot/internal/fetcher"
+	"github.com/frizz925/covid19-update-bot/internal/publisher"
+	"github.com/frizz925/covid19-update-bot/internal/templates"
 )
 
 type DailyUpdateConfig struct {

@@ -1,10 +1,10 @@
 package id
 
 import (
-	"github.com/frizz925/covid19japan-chatbot/internal/country"
-	"github.com/frizz925/covid19japan-chatbot/internal/data"
-	idData "github.com/frizz925/covid19japan-chatbot/internal/data/id"
-	"github.com/frizz925/covid19japan-chatbot/internal/fetcher"
+	"github.com/frizz925/covid19-update-bot/internal/country"
+	"github.com/frizz925/covid19-update-bot/internal/data"
+	idData "github.com/frizz925/covid19-update-bot/internal/data/id"
+	"github.com/frizz925/covid19-update-bot/internal/fetcher"
 )
 
 const FIXTURE_FILE_UPDATE = "update.json"

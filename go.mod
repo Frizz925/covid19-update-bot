@@ -1,4 +1,4 @@
-module github.com/frizz925/covid19japan-chatbot
+module github.com/frizz925/covid19-update-bot
 
 go 1.18
 

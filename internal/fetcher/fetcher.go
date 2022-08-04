@@ -3,7 +3,7 @@ package fetcher
 import (
 	"errors"
 
-	"github.com/frizz925/covid19japan-chatbot/internal/data"
+	"github.com/frizz925/covid19-update-bot/internal/data"
 )
 
 var ErrNotFound = errors.New("not found")

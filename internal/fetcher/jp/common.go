@@ -1,9 +1,9 @@
 package jp
 
 import (
-	"github.com/frizz925/covid19japan-chatbot/internal/data"
-	jpData "github.com/frizz925/covid19japan-chatbot/internal/data/jp"
-	"github.com/frizz925/covid19japan-chatbot/internal/fetcher"
+	"github.com/frizz925/covid19-update-bot/internal/data"
+	jpData "github.com/frizz925/covid19-update-bot/internal/data/jp"
+	"github.com/frizz925/covid19-update-bot/internal/fetcher"
 )
 
 type Fetcher interface {

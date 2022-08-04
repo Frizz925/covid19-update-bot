@@ -6,13 +6,13 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/frizz925/covid19japan-chatbot/internal/config"
-	"github.com/frizz925/covid19japan-chatbot/internal/country"
-	"github.com/frizz925/covid19japan-chatbot/internal/data"
-	"github.com/frizz925/covid19japan-chatbot/internal/fetcher"
-	"github.com/frizz925/covid19japan-chatbot/internal/fetcher/factory"
-	"github.com/frizz925/covid19japan-chatbot/internal/publisher"
-	"github.com/frizz925/covid19japan-chatbot/internal/routines"
+	"github.com/frizz925/covid19-update-bot/internal/config"
+	"github.com/frizz925/covid19-update-bot/internal/country"
+	"github.com/frizz925/covid19-update-bot/internal/data"
+	"github.com/frizz925/covid19-update-bot/internal/fetcher"
+	"github.com/frizz925/covid19-update-bot/internal/fetcher/factory"
+	"github.com/frizz925/covid19-update-bot/internal/publisher"
+	"github.com/frizz925/covid19-update-bot/internal/routines"
 	"github.com/joho/godotenv"
 )
 

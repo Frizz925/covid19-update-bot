@@ -3,8 +3,8 @@ package templates
 import (
 	"strings"
 
-	"github.com/frizz925/covid19japan-chatbot/internal/data"
-	"github.com/frizz925/covid19japan-chatbot/internal/formatters"
+	"github.com/frizz925/covid19-update-bot/internal/data"
+	"github.com/frizz925/covid19-update-bot/internal/formatters"
 )
 
 const TEMPLATE_NAME_DAILY = "daily"
