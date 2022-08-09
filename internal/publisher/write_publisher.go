@@ -11,6 +11,6 @@ func NewWritePublisher(w io.Writer) *WritePublisher {
 }
 
 func (wp *WritePublisher) Publish(message string) error {
-	_, err := wp.Write([]byte(message))
+	_, err := wp.Write([]byte(message + "\n"))
 	return err
 }

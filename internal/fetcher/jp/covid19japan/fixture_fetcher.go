@@ -1,9 +1,10 @@
-package jp
+package covid19japan
 
 import (
 	"github.com/frizz925/covid19-update-bot/internal/data"
-	jpData "github.com/frizz925/covid19-update-bot/internal/data/jp"
+	"github.com/frizz925/covid19-update-bot/internal/data/jp/covid19japan"
 	"github.com/frizz925/covid19-update-bot/internal/fetcher"
+	jpFetcher "github.com/frizz925/covid19-update-bot/internal/fetcher/jp"
 )
 
 const FIXTURE_FILE_SUMMARY_LATEST = "summary_latest.json"
@@ -17,17 +18,22 @@ func NewFixtureFetcher(dir string) *FixtureFetcher {
 		FixtureFetcher: fetcher.FixtureFetcher{
 			Directory: dir,
 			CountryID: "jp",
+			Source:    jpFetcher.DATA_SOURCE_COVID19JAPAN,
 		},
 	}
 }
 
-func (f *FixtureFetcher) SummaryLatest() (*jpData.SummaryLatest, error) {
+func (f *FixtureFetcher) Source() string {
+	return f.GetPath("")
+}
+
+func (f *FixtureFetcher) SummaryLatest() (*covid19japan.SummaryLatest, error) {
 	rc, err := f.ReadFile(FIXTURE_FILE_SUMMARY_LATEST)
 	if err != nil {
 		return nil, err
 	}
 	defer rc.Close()
-	return jpData.ParseSummaryLatest(rc)
+	return covid19japan.ParseSummaryLatest(rc)
 }
 
 func (f *FixtureFetcher) DailySummary() (*data.DailySummary, error) {

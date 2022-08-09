@@ -1,8 +1,8 @@
 package data
 
 type LambdaEvent struct {
-	CountryID string               `json:"country_id"`
-	Channels  []LambdaEventChannel `json:"channels"`
+	DataSources map[string]string    `json:"data_sources"`
+	Channels    []LambdaEventChannel `json:"channels"`
 }
 
 type LambdaEventChannel struct {

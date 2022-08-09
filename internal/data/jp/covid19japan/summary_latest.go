@@ -1,4 +1,4 @@
-package jp
+package covid19japan
 
 import (
 	"encoding/json"

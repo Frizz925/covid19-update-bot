@@ -22,8 +22,8 @@ func (s *awsLambdaSource) Load(ctx context.Context) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	if s.event.CountryID != "" {
-		cfg.CountryID = s.event.CountryID
+	if s.event.DataSources != nil {
+		cfg.DataSources = s.event.DataSources
 	}
 	if s.event.Channels != nil {
 		cids := make([]string, len(s.event.Channels))

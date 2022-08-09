@@ -1,7 +1,8 @@
 package routines
 
 import (
-	"github.com/frizz925/covid19-update-bot/internal/country"
+	"fmt"
+
 	"github.com/frizz925/covid19-update-bot/internal/fetcher"
 	"github.com/frizz925/covid19-update-bot/internal/publisher"
 	"github.com/frizz925/covid19-update-bot/internal/templates"
@@ -9,6 +10,7 @@ import (
 
 type DailyUpdateConfig struct {
 	CountryID   string
+	Source      string
 	TemplateDir string
 	Fetcher     fetcher.Fetcher
 	Publisher   publisher.Publisher
@@ -23,7 +25,7 @@ func DailyUpdate(cfg *DailyUpdateConfig) error {
 	if err != nil {
 		return err
 	}
-	message, err := gen.Daily(ds, country.Comments[cfg.CountryID])
+	message, err := gen.Daily(ds, fmt.Sprintf("Source: %s", cfg.Fetcher.Source()))
 	if err != nil {
 		return err
 	}

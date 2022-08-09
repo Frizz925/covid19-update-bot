@@ -1,14 +1,14 @@
-package jp
+package covid19japan
 
 import (
 	"io"
 	"net/http"
 
 	"github.com/frizz925/covid19-update-bot/internal/data"
-	jpData "github.com/frizz925/covid19-update-bot/internal/data/jp"
+	"github.com/frizz925/covid19-update-bot/internal/data/jp/covid19japan"
 )
 
-const COVID19_JP_URL = "https://data.covid19japan.com/summary/latest.json"
+const API_URL = "https://data.covid19japan.com/summary/latest.json"
 
 type HTTPFetcher struct {
 	client *http.Client
@@ -24,13 +24,17 @@ func NewHTTPFetcher(client ...*http.Client) *HTTPFetcher {
 	}
 }
 
-func (hf *HTTPFetcher) SummaryLatest() (*jpData.SummaryLatest, error) {
-	rc, err := hf.fetch(COVID19_JP_URL)
+func (hf *HTTPFetcher) Source() string {
+	return API_URL
+}
+
+func (hf *HTTPFetcher) SummaryLatest() (*covid19japan.SummaryLatest, error) {
+	rc, err := hf.fetch(API_URL)
 	if err != nil {
 		return nil, err
 	}
 	defer rc.Close()
-	return jpData.ParseSummaryLatest(rc)
+	return covid19japan.ParseSummaryLatest(rc)
 }
 
 func (hf *HTTPFetcher) DailySummary() (*data.DailySummary, error) {

@@ -1,10 +1,11 @@
-package id
+package covid19goid
 
 import (
 	"github.com/frizz925/covid19-update-bot/internal/country"
 	"github.com/frizz925/covid19-update-bot/internal/data"
-	idData "github.com/frizz925/covid19-update-bot/internal/data/id"
+	"github.com/frizz925/covid19-update-bot/internal/data/id/covid19goid"
 	"github.com/frizz925/covid19-update-bot/internal/fetcher"
+	idFetcher "github.com/frizz925/covid19-update-bot/internal/fetcher/id"
 )
 
 const FIXTURE_FILE_UPDATE = "update.json"
@@ -18,17 +19,22 @@ func NewFixtureFetcher(dir string) *FixtureFetcher {
 		FixtureFetcher: fetcher.FixtureFetcher{
 			Directory: dir,
 			CountryID: country.ID_INDONESIA,
+			Source:    idFetcher.DATA_SOURCE_COVID19_GO_ID,
 		},
 	}
 }
 
-func (f *FixtureFetcher) Update() (*idData.UpdateResponse, error) {
+func (f *FixtureFetcher) Source() string {
+	return f.GetPath("")
+}
+
+func (f *FixtureFetcher) Update() (*covid19goid.UpdateResponse, error) {
 	rc, err := f.ReadFile(FIXTURE_FILE_UPDATE)
 	if err != nil {
 		return nil, err
 	}
 	defer rc.Close()
-	return idData.ParseUpdate(rc)
+	return covid19goid.ParseUpdate(rc)
 }
 
 func (f *FixtureFetcher) DailySummary() (*data.DailySummary, error) {

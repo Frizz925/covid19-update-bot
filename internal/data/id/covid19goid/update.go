@@ -1,4 +1,4 @@
-package id
+package covid19goid
 
 import (
 	"encoding/json"

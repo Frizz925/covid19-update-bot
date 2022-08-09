@@ -4,7 +4,9 @@ import (
 	"github.com/frizz925/covid19-update-bot/internal/country"
 	"github.com/frizz925/covid19-update-bot/internal/fetcher"
 	idFetcher "github.com/frizz925/covid19-update-bot/internal/fetcher/id"
+	"github.com/frizz925/covid19-update-bot/internal/fetcher/id/covid19goid"
 	jpFetcher "github.com/frizz925/covid19-update-bot/internal/fetcher/jp"
+	"github.com/frizz925/covid19-update-bot/internal/fetcher/jp/covid19japan"
 )
 
 type FetcherFactory struct {
@@ -15,22 +17,38 @@ func NewFetcherFactory(fixtureDir string) *FetcherFactory {
 	return &FetcherFactory{fixtureDir}
 }
 
-func (f *FetcherFactory) Fixture(countryID string) (fetcher.Fetcher, error) {
+func (f *FetcherFactory) Fixture(countryID, source string) (fetcher.Fetcher, error) {
 	switch countryID {
 	case country.ID_JAPAN:
-		return jpFetcher.NewFixtureFetcher(f.FixtureDir), nil
+		switch source {
+		case jpFetcher.DATA_SOURCE_COVID19JAPAN:
+			return covid19japan.NewFixtureFetcher(f.FixtureDir), nil
+		}
+		return nil, fetcher.ErrNotImplemented
 	case country.ID_INDONESIA:
-		return idFetcher.NewFixtureFetcher(f.FixtureDir), nil
+		switch source {
+		case idFetcher.DATA_SOURCE_COVID19_GO_ID:
+			return covid19goid.NewFixtureFetcher(f.FixtureDir), nil
+		}
+		return nil, fetcher.ErrNotImplemented
 	}
 	return nil, fetcher.ErrNotFound
 }
 
-func (f *FetcherFactory) HTTP(countryID string) (fetcher.Fetcher, error) {
+func (f *FetcherFactory) HTTP(countryID, source string) (fetcher.Fetcher, error) {
 	switch countryID {
 	case country.ID_JAPAN:
-		return jpFetcher.NewHTTPFetcher(), nil
+		switch source {
+		case jpFetcher.DATA_SOURCE_COVID19JAPAN:
+			return covid19japan.NewHTTPFetcher(), nil
+		}
+		return nil, fetcher.ErrNotImplemented
 	case country.ID_INDONESIA:
-		return idFetcher.NewHTTPFetcher(), nil
+		switch source {
+		case idFetcher.DATA_SOURCE_COVID19_GO_ID:
+			return covid19goid.NewHTTPFetcher(), nil
+		}
+		return nil, fetcher.ErrNotImplemented
 	}
 	return nil, fetcher.ErrNotFound
 }
