@@ -41,6 +41,9 @@ func (dp *DiscordPublisher) PublishEmbed(embed *Embed) error {
 			URL: embed.ImageURL,
 		},
 		URL: embed.URL,
+		Footer: &discordgo.MessageEmbedFooter{
+			Text: embed.Footer,
+		},
 	}
 	for _, cid := range dp.channelIDs {
 		_, err := dp.ChannelMessageSendEmbed(cid, &me)

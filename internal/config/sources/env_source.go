@@ -12,8 +12,12 @@ import (
 
 const (
 	ENV_COVID19_DATA_SOURCES = "COVID19_DATA_SOURCES"
-	ENV_DISCORD_BOT_TOKEN    = "DISCORD_BOT_TOKEN"
-	ENV_DISCORD_CHANNEL_IDS  = "DISCORD_CHANNEL_IDS"
+
+	ENV_DISCORD_BOT_TOKEN   = "DISCORD_BOT_TOKEN"
+	ENV_DISCORD_CHANNEL_IDS = "DISCORD_CHANNEL_IDS"
+
+	ENV_STORAGE_S3_REGION = "STORAGE_S3_REGION"
+	ENV_STORAGE_S3_BUCKET = "STORAGE_S3_BUCKET"
 )
 
 type envSource struct{}
@@ -28,6 +32,10 @@ func (es *envSource) Load(context.Context) (*config.Config, error) {
 		Discord: config.Discord{
 			BotToken:   os.Getenv(ENV_DISCORD_BOT_TOKEN),
 			ChannelIDs: strings.Split(os.Getenv(ENV_DISCORD_CHANNEL_IDS), ","),
+		},
+		Storage: config.Storage{
+			S3Region: os.Getenv(ENV_STORAGE_S3_REGION),
+			S3Bucket: os.Getenv(ENV_STORAGE_S3_BUCKET),
 		},
 	}, nil
 }

@@ -1,8 +1,10 @@
 package fetcher
 
 import (
+	"context"
 	"errors"
 	"image"
+	"net/url"
 
 	"github.com/frizz925/covid19-update-bot/internal/data"
 )
@@ -23,14 +25,15 @@ var (
 type Fetcher interface {
 	Type() Type
 	Source() string
+	GetFullURL(url string) (*url.URL, error)
 }
 
 type ParsedFetcher interface {
 	Fetcher
-	DailySummary() (*data.DailySummary, error)
+	DailySummary(ctx context.Context) (*data.DailySummary, error)
 }
 
 type ImageFetcher interface {
 	Fetcher
-	Image(url string) (image.Image, error)
+	Image(ctx context.Context, url string) (image.Image, error)
 }

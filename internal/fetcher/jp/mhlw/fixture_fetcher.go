@@ -1,6 +1,7 @@
 package mhlw
 
 import (
+	"context"
 	"image"
 	"image/jpeg"
 	"image/png"
@@ -31,11 +32,11 @@ func (f *FixtureFetcher) Source() string {
 	return f.GetPath("")
 }
 
-func (f *FixtureFetcher) Feed() (io.ReadCloser, error) {
+func (f *FixtureFetcher) Feed(ctx context.Context) (io.ReadCloser, error) {
 	return f.ReadFile("news.rdf")
 }
 
-func (f *FixtureFetcher) News(rawURL string) (io.ReadCloser, error) {
+func (f *FixtureFetcher) News(ctx context.Context, rawURL string) (io.ReadCloser, error) {
 	name, err := f.urlToFilename(rawURL)
 	if err != nil {
 		return nil, err
@@ -43,17 +44,17 @@ func (f *FixtureFetcher) News(rawURL string) (io.ReadCloser, error) {
 	return f.ReadFile(name)
 }
 
-func (f *FixtureFetcher) Image(rawURL string) (image.Image, error) {
+func (f *FixtureFetcher) Image(ctx context.Context, rawURL string) (image.Image, error) {
 	name, err := f.urlToFilename(rawURL)
 	if err != nil {
 		return nil, err
 	}
-	ext := path.Ext(name)
 	rc, err := f.ReadFile(name)
 	if err != nil {
 		return nil, err
 	}
 	defer rc.Close()
+	ext := path.Ext(name)
 	switch ext {
 	case ".png":
 		return png.Decode(rc)

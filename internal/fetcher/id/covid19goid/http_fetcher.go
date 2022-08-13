@@ -1,6 +1,7 @@
 package covid19goid
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/frizz925/covid19-update-bot/internal/data"
@@ -8,7 +9,10 @@ import (
 	"github.com/frizz925/covid19-update-bot/internal/fetcher"
 )
 
-const API_URL = "https://data.covid19.go.id/public/api/update.json"
+const (
+	SOURCE_URL = "https://covid19.go.id/"
+	API_URL    = "https://data.covid19.go.id/public/api/update.json"
+)
 
 type HTTPFetcher struct {
 	fetcher.HTTPFetcher
@@ -23,11 +27,11 @@ func NewHTTPFetcher(client ...*http.Client) *HTTPFetcher {
 }
 
 func (hf *HTTPFetcher) Source() string {
-	return API_URL
+	return SOURCE_URL
 }
 
-func (hf *HTTPFetcher) Update() (*covid19goid.UpdateResponse, error) {
-	resp, err := hf.Fetch(hf.Source())
+func (hf *HTTPFetcher) Update(ctx context.Context) (*covid19goid.UpdateResponse, error) {
+	resp, err := hf.Fetch(ctx, API_URL)
 	if err != nil {
 		return nil, err
 	}
@@ -35,8 +39,8 @@ func (hf *HTTPFetcher) Update() (*covid19goid.UpdateResponse, error) {
 	return covid19goid.ParseUpdate(resp.Body, hf.Source())
 }
 
-func (hf *HTTPFetcher) DailySummary() (*data.DailySummary, error) {
-	ur, err := hf.Update()
+func (hf *HTTPFetcher) DailySummary(ctx context.Context) (*data.DailySummary, error) {
+	ur, err := hf.Update(ctx)
 	if err != nil {
 		return nil, err
 	}

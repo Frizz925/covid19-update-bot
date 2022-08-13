@@ -1,6 +1,7 @@
 package mhlw
 
 import (
+	"context"
 	"image"
 	"io"
 
@@ -9,7 +10,7 @@ import (
 
 type Fetcher interface {
 	fetcher.Fetcher
-	Feed() (io.ReadCloser, error)
-	News(url string) (io.ReadCloser, error)
-	Image(url string) (image.Image, error)
+	Feed(ctx context.Context) (io.ReadCloser, error)
+	News(ctx context.Context, url string) (io.ReadCloser, error)
+	Image(ctx context.Context, url string) (image.Image, error)
 }

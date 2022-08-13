@@ -1,6 +1,8 @@
 package scraper
 
 import (
+	"context"
+
 	"github.com/frizz925/covid19-update-bot/internal/data"
 )
 
@@ -17,10 +19,10 @@ type Scraper interface {
 
 type ParsedScraper interface {
 	Scraper
-	DailySummary() (*data.DailySummary, error)
+	DailySummary(context.Context) (*data.DailySummary, error)
 }
 
 type ImageScraper interface {
 	Scraper
-	DailySummaryImage() (*data.DailySummaryImage, error)
+	DailySummaryImage(context.Context) (*data.DailySummaryImage, error)
 }

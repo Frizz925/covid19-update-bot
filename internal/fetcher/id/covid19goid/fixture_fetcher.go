@@ -1,6 +1,8 @@
 package covid19goid
 
 import (
+	"context"
+
 	"github.com/frizz925/covid19-update-bot/internal/country"
 	"github.com/frizz925/covid19-update-bot/internal/data"
 	"github.com/frizz925/covid19-update-bot/internal/data/id/covid19goid"
@@ -28,7 +30,7 @@ func (f *FixtureFetcher) Source() string {
 	return f.GetPath("")
 }
 
-func (f *FixtureFetcher) Update() (*covid19goid.UpdateResponse, error) {
+func (f *FixtureFetcher) Update(ctx context.Context) (*covid19goid.UpdateResponse, error) {
 	rc, err := f.ReadFile(FIXTURE_FILE_UPDATE)
 	if err != nil {
 		return nil, err
@@ -37,8 +39,8 @@ func (f *FixtureFetcher) Update() (*covid19goid.UpdateResponse, error) {
 	return covid19goid.ParseUpdate(rc, f.Source())
 }
 
-func (f *FixtureFetcher) DailySummary() (*data.DailySummary, error) {
-	ur, err := f.Update()
+func (f *FixtureFetcher) DailySummary(ctx context.Context) (*data.DailySummary, error) {
+	ur, err := f.Update(ctx)
 	if err != nil {
 		return nil, err
 	}

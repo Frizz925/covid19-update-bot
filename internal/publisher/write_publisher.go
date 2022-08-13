@@ -16,6 +16,9 @@ func (wp *WritePublisher) Publish(message string) error {
 }
 
 func (wp *WritePublisher) PublishEmbed(embed *Embed) error {
+	if err := wp.Publish(embed.URL); err != nil {
+		return err
+	}
 	if err := wp.Publish(embed.Title); err != nil {
 		return err
 	}
@@ -25,5 +28,5 @@ func (wp *WritePublisher) PublishEmbed(embed *Embed) error {
 	if err := wp.Publish(embed.ImageURL); err != nil {
 		return err
 	}
-	return wp.Publish(embed.URL)
+	return wp.Publish(embed.Footer)
 }

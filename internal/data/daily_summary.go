@@ -1,7 +1,6 @@
 package data
 
 import (
-	"image"
 	"time"
 
 	"github.com/frizz925/covid19-update-bot/internal/country"
@@ -22,6 +21,6 @@ type DailySummary struct {
 type DailySummaryImage struct {
 	Country  country.Country
 	DateTime time.Time
-	Image    image.Image
+	ImageURL string
 	Source   string
 }

@@ -1,6 +1,7 @@
 package fetcher
 
 import (
+	"context"
 	"net/http"
 	"net/url"
 )
@@ -15,12 +16,16 @@ func (HTTPFetcher) Type() Type {
 	return HTTPType
 }
 
-func (hf *HTTPFetcher) Fetch(rawURL string) (*http.Response, error) {
+func (hf *HTTPFetcher) Fetch(ctx context.Context, rawURL string) (*http.Response, error) {
 	u, err := hf.GetFullURL(rawURL)
 	if err != nil {
 		return nil, err
 	}
-	return hf.GetClient().Get(u.String())
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	return hf.GetClient().Do(req)
 }
 
 func (hf *HTTPFetcher) GetClient() *http.Client {

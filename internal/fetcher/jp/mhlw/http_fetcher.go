@@ -1,6 +1,7 @@
 package mhlw
 
 import (
+	"context"
 	"image"
 	"image/jpeg"
 	"image/png"
@@ -35,24 +36,24 @@ func (hf *HTTPFetcher) Source() string {
 	return BASE_URL
 }
 
-func (hf *HTTPFetcher) Feed() (io.ReadCloser, error) {
-	resp, err := hf.Fetch(FEED_PATH)
+func (hf *HTTPFetcher) Feed(ctx context.Context) (io.ReadCloser, error) {
+	resp, err := hf.Fetch(ctx, FEED_PATH)
 	if err != nil {
 		return nil, err
 	}
 	return resp.Body, nil
 }
 
-func (hf *HTTPFetcher) News(url string) (io.ReadCloser, error) {
-	resp, err := hf.Fetch(url)
+func (hf *HTTPFetcher) News(ctx context.Context, url string) (io.ReadCloser, error) {
+	resp, err := hf.Fetch(ctx, url)
 	if err != nil {
 		return nil, err
 	}
 	return resp.Body, nil
 }
 
-func (hf *HTTPFetcher) Image(url string) (image.Image, error) {
-	resp, err := hf.Fetch(url)
+func (hf *HTTPFetcher) Image(ctx context.Context, url string) (image.Image, error) {
+	resp, err := hf.Fetch(ctx, url)
 	if err != nil {
 		return nil, err
 	}

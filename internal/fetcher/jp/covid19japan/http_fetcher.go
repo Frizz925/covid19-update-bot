@@ -1,6 +1,7 @@
 package covid19japan
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/frizz925/covid19-update-bot/internal/data"
@@ -8,7 +9,10 @@ import (
 	"github.com/frizz925/covid19-update-bot/internal/fetcher"
 )
 
-const API_URL = "https://data.covid19japan.com/summary/latest.json"
+const (
+	SOURCE_URL = "https://covid19japan.com/"
+	API_URL    = "https://data.covid19japan.com/summary/latest.json"
+)
 
 type HTTPFetcher struct {
 	fetcher.HTTPFetcher
@@ -23,11 +27,11 @@ func NewHTTPFetcher(client ...*http.Client) *HTTPFetcher {
 }
 
 func (hf *HTTPFetcher) Source() string {
-	return API_URL
+	return SOURCE_URL
 }
 
-func (hf *HTTPFetcher) SummaryLatest() (*covid19japan.SummaryLatest, error) {
-	resp, err := hf.Fetch(hf.Source())
+func (hf *HTTPFetcher) SummaryLatest(ctx context.Context) (*covid19japan.SummaryLatest, error) {
+	resp, err := hf.Fetch(ctx, API_URL)
 	if err != nil {
 		return nil, err
 	}
@@ -35,8 +39,8 @@ func (hf *HTTPFetcher) SummaryLatest() (*covid19japan.SummaryLatest, error) {
 	return covid19japan.ParseSummaryLatest(resp.Body, hf.Source())
 }
 
-func (hf *HTTPFetcher) DailySummary() (*data.DailySummary, error) {
-	sl, err := hf.SummaryLatest()
+func (hf *HTTPFetcher) DailySummary(ctx context.Context) (*data.DailySummary, error) {
+	sl, err := hf.SummaryLatest(ctx)
 	if err != nil {
 		return nil, err
 	}

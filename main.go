@@ -6,13 +6,17 @@ import (
 	"time"
 
 	awsLambda "github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/frizz925/covid19-update-bot/internal/config"
 	"github.com/frizz925/covid19-update-bot/internal/config/sources"
+	awsSources "github.com/frizz925/covid19-update-bot/internal/config/sources/aws"
 	"github.com/frizz925/covid19-update-bot/internal/fetcher"
 	"github.com/frizz925/covid19-update-bot/internal/lambda"
 	"github.com/frizz925/covid19-update-bot/internal/publisher"
 	"github.com/frizz925/covid19-update-bot/internal/routines"
 	"github.com/frizz925/covid19-update-bot/internal/scraper/factory"
+	"github.com/frizz925/covid19-update-bot/internal/storage"
+	awsStorage "github.com/frizz925/covid19-update-bot/internal/storage/aws"
 	"github.com/joho/godotenv"
 )
 
@@ -28,6 +32,7 @@ const (
 type runConfig struct {
 	lambdaEvent      *lambda.Event
 	fetcherType      fetcher.Type
+	storageType      storage.Type
 	publishToDiscord bool
 }
 
@@ -43,7 +48,9 @@ func main() {
 		panic(err)
 	}
 
-	rcfg := &runConfig{}
+	rcfg := &runConfig{
+		storageType: awsStorage.S3,
+	}
 	if os.Getenv(ENV_FETCH_FROM_WEB) == "true" {
 		rcfg.fetcherType = fetcher.HTTPType
 	} else {
@@ -61,6 +68,7 @@ func lambdaHandler(ctx context.Context, event lambda.Event) error {
 	return run(ctx, &runConfig{
 		lambdaEvent:      &event,
 		fetcherType:      fetcher.HTTPType,
+		storageType:      awsStorage.S3,
 		publishToDiscord: true,
 	})
 }
@@ -68,7 +76,7 @@ func lambdaHandler(ctx context.Context, event lambda.Event) error {
 func run(ctx context.Context, rcfg *runConfig) error {
 	var src config.Source
 	if rcfg.lambdaEvent != nil {
-		src = sources.AWSLambdaSource(rcfg.lambdaEvent)
+		src = awsSources.LambdaSource(rcfg.lambdaEvent)
 	} else {
 		src = sources.EnvSource()
 	}
@@ -92,20 +100,33 @@ func run(ctx context.Context, rcfg *runConfig) error {
 	}
 	defer cleanup(pub)
 
-	fac := factory.NewScraperFactory(DIR_FIXTURES)
+	var stg storage.Storage
+	switch rcfg.storageType {
+	case awsStorage.S3:
+		sess, err := session.NewSessionWithOptions(session.Options{
+			SharedConfigState: session.SharedConfigEnable,
+		})
+		if err != nil {
+			return err
+		}
+		stg = awsStorage.NewS3Storage(sess, cfg.Storage.S3Region, cfg.Storage.S3Bucket)
+	default:
+		stg = storage.NewTempStorage()
+	}
+
+	fac := factory.NewScraperFactory(DIR_FIXTURES, stg)
 	for _, ds := range cfg.DataSources {
 		scr, err := fac.Create(ds.ScraperType, rcfg.fetcherType, ds.Country, ds.Source)
 		if err != nil {
 			return err
 		}
-
 		routineCfg := routines.DailyUpdateConfig{
 			TemplatesDir: DIR_TEMPLATES,
 			Country:      ds.Country,
 			Scraper:      scr,
 			Publisher:    pub,
 		}
-		if err := routines.DailyUpdate(&routineCfg); err != nil {
+		if err := routines.DailyUpdate(ctx, &routineCfg); err != nil {
 			return err
 		}
 	}

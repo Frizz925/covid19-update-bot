@@ -1,11 +1,12 @@
 package jp
 
 import (
+	"bytes"
+	"context"
 	"encoding/xml"
 	"errors"
-	"image"
-	"image/color"
-	"image/draw"
+	"fmt"
+	"image/png"
 	"strings"
 	"time"
 
@@ -14,6 +15,8 @@ import (
 	"github.com/frizz925/covid19-update-bot/internal/data"
 	mhlwData "github.com/frizz925/covid19-update-bot/internal/data/jp/mhlw"
 	"github.com/frizz925/covid19-update-bot/internal/fetcher/jp/mhlw"
+	"github.com/frizz925/covid19-update-bot/internal/imgproc"
+	"github.com/frizz925/covid19-update-bot/internal/storage"
 )
 
 var (
@@ -23,6 +26,7 @@ var (
 
 type MHLWScraper struct {
 	mhlw.Fetcher
+	storage.Storage
 }
 
 type mhlwArticle struct {
@@ -31,38 +35,48 @@ type mhlwArticle struct {
 	Date  time.Time
 }
 
-func NewMHLWScraper(mf mhlw.Fetcher) *MHLWScraper {
-	return &MHLWScraper{mf}
+func NewMHLWScraper(mf mhlw.Fetcher, st storage.Storage) *MHLWScraper {
+	return &MHLWScraper{
+		Fetcher: mf,
+		Storage: st,
+	}
 }
 
-func (ms *MHLWScraper) DailySummaryImage() (*data.DailySummaryImage, error) {
-	article, err := ms.findArticle()
+func (ms *MHLWScraper) DailySummaryImage(ctx context.Context) (*data.DailySummaryImage, error) {
+	article, err := ms.findArticle(ctx)
 	if err != nil {
 		return nil, err
 	}
-	imgURL, err := ms.findSummaryImage(article.URL)
+	imgURL, err := ms.findSummaryImage(ctx, article.URL)
 	if err != nil {
 		return nil, err
 	}
-	img, err := ms.Image(imgURL)
+	img, err := ms.Image(ctx, imgURL)
 	if err != nil {
 		return nil, err
 	}
 
-	base := image.NewRGBA(img.Bounds())
-	draw.Draw(base, base.Bounds(), &image.Uniform{color.RGBA{255, 255, 255, 255}}, image.Point{}, draw.Src)
-	draw.Draw(base, base.Bounds(), img, image.Point{}, draw.Over)
+	var buf bytes.Buffer
+	if err := png.Encode(&buf, imgproc.WhiteBG(img)); err != nil {
+		return nil, err
+	}
+
+	imgName := fmt.Sprintf("jp/mhlw/%s.png", article.Date.Format("2006-01-02"))
+	obj, err := ms.Write(ctx, imgName, &buf)
+	if err != nil {
+		return nil, err
+	}
 
 	return &data.DailySummaryImage{
 		Country:  country.JP,
 		DateTime: article.Date,
-		Image:    base,
+		ImageURL: obj.URL(),
 		Source:   article.URL,
 	}, nil
 }
 
-func (ms *MHLWScraper) findArticle() (*mhlwArticle, error) {
-	rc, err := ms.Feed()
+func (ms *MHLWScraper) findArticle(ctx context.Context) (*mhlwArticle, error) {
+	rc, err := ms.Feed(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -93,8 +107,8 @@ func (ms *MHLWScraper) findArticle() (*mhlwArticle, error) {
 	return nil, ErrNotFound
 }
 
-func (ms *MHLWScraper) findSummaryImage(url string) (string, error) {
-	rc, err := ms.News(url)
+func (ms *MHLWScraper) findSummaryImage(ctx context.Context, url string) (string, error) {
+	rc, err := ms.News(ctx, url)
 	if err != nil {
 		return "", err
 	}

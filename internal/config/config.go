@@ -8,6 +8,13 @@ import (
 type Config struct {
 	DataSources []DataSource `json:"data_sources"`
 	Discord     Discord      `json:"discord"`
+	Storage     Storage      `json:"storage"`
+}
+
+type DataSource struct {
+	Country     country.Country `json:"country"`
+	ScraperType scraper.Type    `json:"scraper_type"`
+	Source      string          `json:"source"`
 }
 
 type Discord struct {
@@ -15,8 +22,7 @@ type Discord struct {
 	ChannelIDs []string `json:"channel_ids"`
 }
 
-type DataSource struct {
-	Country     country.Country
-	ScraperType scraper.Type
-	Source      string
+type Storage struct {
+	S3Region string `json:"s3_region"`
+	S3Bucket string `json:"s3_bucket"`
 }

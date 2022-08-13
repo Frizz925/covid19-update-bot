@@ -1,6 +1,8 @@
 package covid19japan
 
 import (
+	"context"
+
 	"github.com/frizz925/covid19-update-bot/internal/country"
 	"github.com/frizz925/covid19-update-bot/internal/data"
 	"github.com/frizz925/covid19-update-bot/internal/data/jp/covid19japan"
@@ -28,7 +30,7 @@ func (f *FixtureFetcher) Source() string {
 	return f.GetPath("")
 }
 
-func (f *FixtureFetcher) SummaryLatest() (*covid19japan.SummaryLatest, error) {
+func (f *FixtureFetcher) SummaryLatest(ctx context.Context) (*covid19japan.SummaryLatest, error) {
 	rc, err := f.ReadFile(FIXTURE_FILE_SUMMARY_LATEST)
 	if err != nil {
 		return nil, err
@@ -37,8 +39,8 @@ func (f *FixtureFetcher) SummaryLatest() (*covid19japan.SummaryLatest, error) {
 	return covid19japan.ParseSummaryLatest(rc, f.Source())
 }
 
-func (f *FixtureFetcher) DailySummary() (*data.DailySummary, error) {
-	sl, err := f.SummaryLatest()
+func (f *FixtureFetcher) DailySummary(ctx context.Context) (*data.DailySummary, error) {
+	sl, err := f.SummaryLatest(ctx)
 	if err != nil {
 		return nil, err
 	}

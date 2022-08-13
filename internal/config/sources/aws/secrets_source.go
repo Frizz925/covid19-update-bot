@@ -1,4 +1,4 @@
-package sources
+package aws
 
 import (
 	"context"
@@ -9,23 +9,19 @@ import (
 	"github.com/frizz925/covid19-update-bot/internal/config"
 )
 
-type awsSecretsSource struct {
+type secretsSource struct {
 	*secretsmanager.Client
 	SecretId string
 }
 
-func AWSSecretsSource(ctx context.Context, secretId string) (config.Source, error) {
-	cfg, err := loadAWSConfig(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return &awsSecretsSource{
+func SecretsSource(cfg aws.Config, secretId string) config.Source {
+	return &secretsSource{
 		Client:   secretsmanager.NewFromConfig(cfg),
 		SecretId: secretId,
-	}, nil
+	}
 }
 
-func (s *awsSecretsSource) Load(ctx context.Context) (*config.Config, error) {
+func (s *secretsSource) Load(ctx context.Context) (*config.Config, error) {
 	res, err := s.GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{
 		SecretId: aws.String(s.SecretId),
 	})

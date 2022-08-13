@@ -9,6 +9,7 @@ import (
 	"github.com/frizz925/covid19-update-bot/internal/fetcher/jp/mhlw"
 	"github.com/frizz925/covid19-update-bot/internal/scraper"
 	jpScraper "github.com/frizz925/covid19-update-bot/internal/scraper/jp"
+	"github.com/frizz925/covid19-update-bot/internal/storage"
 )
 
 var (
@@ -19,13 +20,15 @@ var (
 
 type ScraperFactory struct {
 	factory.FetcherFactory
+	storage.Storage
 }
 
-func NewScraperFactory(fixtureDir string) *ScraperFactory {
+func NewScraperFactory(fixtureDir string, st storage.Storage) *ScraperFactory {
 	return &ScraperFactory{
 		FetcherFactory: factory.FetcherFactory{
 			FixtureDir: fixtureDir,
 		},
+		Storage: st,
 	}
 }
 
@@ -55,7 +58,7 @@ func (f *ScraperFactory) ImageScraper(ft fetcher.Type, c country.Country, source
 	switch c {
 	case country.JP:
 		if v, ok := imgf.(mhlw.Fetcher); ok {
-			return jpScraper.NewMHLWScraper(v), nil
+			return jpScraper.NewMHLWScraper(v, f.Storage), nil
 		}
 		return nil, ErrInvalidFetcher
 	case country.ID:

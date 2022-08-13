@@ -10,4 +10,5 @@ type Embed struct {
 	Content  string
 	ImageURL string
 	URL      string
+	Footer   string
 }
