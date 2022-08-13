@@ -34,7 +34,7 @@ func (f *FixtureFetcher) Update() (*covid19goid.UpdateResponse, error) {
 		return nil, err
 	}
 	defer rc.Close()
-	return covid19goid.ParseUpdate(rc)
+	return covid19goid.ParseUpdate(rc, f.Source())
 }
 
 func (f *FixtureFetcher) DailySummary() (*data.DailySummary, error) {

@@ -34,7 +34,7 @@ func (f *FixtureFetcher) SummaryLatest() (*covid19japan.SummaryLatest, error) {
 		return nil, err
 	}
 	defer rc.Close()
-	return covid19japan.ParseSummaryLatest(rc)
+	return covid19japan.ParseSummaryLatest(rc, f.Source())
 }
 
 func (f *FixtureFetcher) DailySummary() (*data.DailySummary, error) {

@@ -38,3 +38,15 @@ func (g *Generator) Daily(ds *data.DailySummary, comments ...string) (string, er
 	}
 	return strings.TrimSpace(res), nil
 }
+
+func (g *Generator) DailyImage(dsi *data.DailySummaryImage, comments ...string) (string, error) {
+	res, err := g.Generate(TEMPLATE_NAME_DAILY, &dailyData{
+		Country: dsi.Country.Name(),
+		Date:    dsi.DateTime.Format("Monday, January 2, 2006"),
+		Comment: strings.Join(comments, "\n"),
+	})
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(res), nil
+}

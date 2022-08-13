@@ -10,7 +10,8 @@ import (
 )
 
 type SummaryLatest struct {
-	Daily []DailySummary `json:"daily"`
+	Daily  []DailySummary `json:"daily"`
+	Source string         `json:"-"`
 }
 
 type DailySummary struct {
@@ -21,10 +22,11 @@ type DailySummary struct {
 	RecoveredCumulative int    `json:"recoveredCumulative"`
 	DeceasedCumulative  int    `json:"deceasedCumulative"`
 	Date                string `json:"date"`
+	Source              string `json:"-"`
 }
 
-func ParseSummaryLatest(r io.Reader) (*SummaryLatest, error) {
-	var sl SummaryLatest
+func ParseSummaryLatest(r io.Reader, source string) (*SummaryLatest, error) {
+	sl := SummaryLatest{Source: source}
 	if err := sl.Parse(r); err != nil {
 		return nil, err
 	}
@@ -41,7 +43,9 @@ func (sl *SummaryLatest) Today() *DailySummary {
 	if count <= 0 {
 		return nil
 	}
-	return &sl.Daily[count-1]
+	ds := &sl.Daily[count-1]
+	ds.Source = sl.Source
+	return ds
 }
 
 func (ds *DailySummary) Normalize() (*data.DailySummary, error) {
@@ -58,6 +62,7 @@ func (ds *DailySummary) Normalize() (*data.DailySummary, error) {
 		ConfirmedCumulative: ds.ConfirmedCumulative,
 		RecoveredCumulative: ds.RecoveredCumulative,
 		DeceasedCumulative:  ds.DeceasedCumulative,
+		Source:              ds.Source,
 	}, nil
 }
 

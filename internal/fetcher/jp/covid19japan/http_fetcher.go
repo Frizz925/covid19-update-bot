@@ -27,12 +27,12 @@ func (hf *HTTPFetcher) Source() string {
 }
 
 func (hf *HTTPFetcher) SummaryLatest() (*covid19japan.SummaryLatest, error) {
-	rc, err := hf.Fetch(hf.Source())
+	resp, err := hf.Fetch(hf.Source())
 	if err != nil {
 		return nil, err
 	}
-	defer rc.Close()
-	return covid19japan.ParseSummaryLatest(rc)
+	defer resp.Body.Close()
+	return covid19japan.ParseSummaryLatest(resp.Body, hf.Source())
 }
 
 func (hf *HTTPFetcher) DailySummary() (*data.DailySummary, error) {

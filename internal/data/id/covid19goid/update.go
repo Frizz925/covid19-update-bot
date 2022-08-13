@@ -11,6 +11,7 @@ import (
 
 type UpdateResponse struct {
 	Update Update `json:"update"`
+	Source string `json:"-"`
 }
 
 type Update struct {
@@ -34,8 +35,8 @@ type Total struct {
 	JumlahDirawat   int `json:"jumlah_dirawat"`
 }
 
-func ParseUpdate(r io.Reader) (*UpdateResponse, error) {
-	var ur UpdateResponse
+func ParseUpdate(r io.Reader, source string) (*UpdateResponse, error) {
+	ur := UpdateResponse{Source: source}
 	err := ur.Parse(r)
 	if err != nil {
 		return nil, err
@@ -61,6 +62,7 @@ func (ur *UpdateResponse) Normalize() (*data.DailySummary, error) {
 		ConfirmedCumulative: ur.Update.Total.JumlahPositif,
 		RecoveredCumulative: ur.Update.Total.JumlahSembuh,
 		DeceasedCumulative:  ur.Update.Total.JumlahMeninggal,
+		Source:              ur.Source,
 	}, nil
 }
 

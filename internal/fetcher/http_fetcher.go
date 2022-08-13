@@ -1,24 +1,26 @@
 package fetcher
 
 import (
-	"io"
 	"net/http"
+	"net/url"
 )
 
 type HTTPFetcher struct {
-	Client *http.Client
+	RawBaseURL string
+	BaseURL    *url.URL
+	Client     *http.Client
 }
 
 func (HTTPFetcher) Type() Type {
 	return HTTPType
 }
 
-func (hf *HTTPFetcher) Fetch(url string) (io.ReadCloser, error) {
-	resp, err := hf.GetClient().Get(url)
+func (hf *HTTPFetcher) Fetch(rawURL string) (*http.Response, error) {
+	u, err := hf.GetFullURL(rawURL)
 	if err != nil {
 		return nil, err
 	}
-	return resp.Body, nil
+	return hf.GetClient().Get(u.String())
 }
 
 func (hf *HTTPFetcher) GetClient() *http.Client {
@@ -26,4 +28,37 @@ func (hf *HTTPFetcher) GetClient() *http.Client {
 		return hf.Client
 	}
 	return http.DefaultClient
+}
+
+func (hf *HTTPFetcher) GetBaseURL() (*url.URL, error) {
+	if hf.BaseURL != nil {
+		return hf.BaseURL, nil
+	}
+	u, err := url.Parse(hf.RawBaseURL)
+	if err != nil {
+		return nil, err
+	}
+	hf.BaseURL = u
+	return u, nil
+}
+
+func (hf *HTTPFetcher) GetFullURL(rawURL string) (*url.URL, error) {
+	baseURL, err := hf.GetBaseURL()
+	if err != nil {
+		return nil, err
+	}
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return nil, err
+	}
+	if u.Scheme == "" {
+		u.Scheme = baseURL.Scheme
+	}
+	if u.Host == "" {
+		u.Host = baseURL.Host
+	}
+	if u.User == nil {
+		u.User = baseURL.User
+	}
+	return u, nil
 }

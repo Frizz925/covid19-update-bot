@@ -2,6 +2,7 @@ package fetcher
 
 import (
 	"errors"
+	"image"
 
 	"github.com/frizz925/covid19-update-bot/internal/data"
 )
@@ -14,8 +15,9 @@ const (
 )
 
 var (
-	ErrNotFound       = errors.New("not found")
-	ErrNotImplemented = errors.New("not yet implemented")
+	ErrNotFound           = errors.New("not found")
+	ErrNotImplemented     = errors.New("not yet implemented")
+	ErrInvalidImageFormat = errors.New("invalid image format")
 )
 
 type Fetcher interface {
@@ -30,5 +32,5 @@ type ParsedFetcher interface {
 
 type ImageFetcher interface {
 	Fetcher
-	Image(url string) ([]byte, error)
+	Image(url string) (image.Image, error)
 }

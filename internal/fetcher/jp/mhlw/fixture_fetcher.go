@@ -1,6 +1,9 @@
 package mhlw
 
 import (
+	"image"
+	"image/jpeg"
+	"image/png"
 	"io"
 	"net/url"
 	"path"
@@ -40,17 +43,26 @@ func (f *FixtureFetcher) News(rawURL string) (io.ReadCloser, error) {
 	return f.ReadFile(name)
 }
 
-func (f *FixtureFetcher) Image(rawURL string) ([]byte, error) {
+func (f *FixtureFetcher) Image(rawURL string) (image.Image, error) {
 	name, err := f.urlToFilename(rawURL)
 	if err != nil {
 		return nil, err
 	}
+	ext := path.Ext(name)
 	rc, err := f.ReadFile(name)
 	if err != nil {
 		return nil, err
 	}
 	defer rc.Close()
-	return io.ReadAll(rc)
+	switch ext {
+	case ".png":
+		return png.Decode(rc)
+	case ".jpg":
+		fallthrough
+	case ".jpeg":
+		return jpeg.Decode(rc)
+	}
+	return nil, fetcher.ErrInvalidImageFormat
 }
 
 func (f *FixtureFetcher) urlToFilename(rawURL string) (string, error) {

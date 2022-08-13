@@ -1,6 +1,8 @@
 package scraper
 
-import "github.com/frizz925/covid19-update-bot/internal/data"
+import (
+	"github.com/frizz925/covid19-update-bot/internal/data"
+)
 
 type Type string
 
@@ -20,5 +22,5 @@ type ParsedScraper interface {
 
 type ImageScraper interface {
 	Scraper
-	DailySummaryImage() ([]byte, error)
+	DailySummaryImage() (*data.DailySummaryImage, error)
 }
