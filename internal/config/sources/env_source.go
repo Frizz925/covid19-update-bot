@@ -7,6 +7,7 @@ import (
 
 	"github.com/frizz925/covid19-update-bot/internal/config"
 	"github.com/frizz925/covid19-update-bot/internal/country"
+	"github.com/frizz925/covid19-update-bot/internal/scraper"
 )
 
 const (
@@ -38,14 +39,18 @@ func (envSource) getDataSources() []config.DataSource {
 	}
 	res := make([]config.DataSource, 0)
 	for _, token := range strings.Split(text, ",") {
-		toks := strings.SplitN(token, ":", 2)
-		cid, src := toks[0], ""
+		toks := strings.SplitN(token, ":", 3)
+		cid, st, src := toks[0], scraper.Parsed, ""
 		if len(toks) >= 2 {
-			src = toks[1]
+			st = scraper.Type(toks[1])
+		}
+		if len(toks) >= 3 {
+			src = toks[2]
 		}
 		res = append(res, config.DataSource{
-			Country: country.Country(cid),
-			Source:  src,
+			Country:     country.Country(cid),
+			ScraperType: st,
+			Source:      src,
 		})
 	}
 	return res
