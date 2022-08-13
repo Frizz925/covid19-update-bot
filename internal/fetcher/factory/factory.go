@@ -7,6 +7,7 @@ import (
 	"github.com/frizz925/covid19-update-bot/internal/fetcher/id/covid19goid"
 	jpFetcher "github.com/frizz925/covid19-update-bot/internal/fetcher/jp"
 	"github.com/frizz925/covid19-update-bot/internal/fetcher/jp/covid19japan"
+	"github.com/frizz925/covid19-update-bot/internal/fetcher/jp/mhlw"
 )
 
 type FetcherFactory struct {
@@ -17,38 +18,82 @@ func NewFetcherFactory(fixtureDir string) *FetcherFactory {
 	return &FetcherFactory{fixtureDir}
 }
 
-func (f *FetcherFactory) Fixture(countryID, source string) (fetcher.Fetcher, error) {
-	switch countryID {
-	case country.ID_JAPAN:
-		switch source {
-		case jpFetcher.DATA_SOURCE_COVID19JAPAN:
-			return covid19japan.NewFixtureFetcher(f.FixtureDir), nil
+func (f *FetcherFactory) ParsedFetcher(ft fetcher.Type, c country.Country, source string) (fetcher.ParsedFetcher, error) {
+	switch ft {
+	case fetcher.FixtureType:
+		switch c {
+		case country.JP:
+			switch source {
+			case "":
+				fallthrough
+			case jpFetcher.DATA_SOURCE_COVID19JAPAN:
+				return covid19japan.NewFixtureFetcher(f.FixtureDir), nil
+			}
+		case country.ID:
+			switch source {
+			case "":
+				fallthrough
+			case idFetcher.DATA_SOURCE_COVID19_GO_ID:
+				return covid19goid.NewFixtureFetcher(f.FixtureDir), nil
+			}
 		}
-		return nil, fetcher.ErrNotImplemented
-	case country.ID_INDONESIA:
-		switch source {
-		case idFetcher.DATA_SOURCE_COVID19_GO_ID:
-			return covid19goid.NewFixtureFetcher(f.FixtureDir), nil
+	case fetcher.HTTPType:
+		switch c {
+		case country.JP:
+			switch source {
+			case "":
+				fallthrough
+			case jpFetcher.DATA_SOURCE_COVID19JAPAN:
+				return covid19japan.NewHTTPFetcher(), nil
+			}
+		case country.ID:
+			switch source {
+			case "":
+				fallthrough
+			case idFetcher.DATA_SOURCE_COVID19_GO_ID:
+				return covid19goid.NewHTTPFetcher(), nil
+			}
 		}
-		return nil, fetcher.ErrNotImplemented
 	}
 	return nil, fetcher.ErrNotFound
 }
 
-func (f *FetcherFactory) HTTP(countryID, source string) (fetcher.Fetcher, error) {
-	switch countryID {
-	case country.ID_JAPAN:
-		switch source {
-		case jpFetcher.DATA_SOURCE_COVID19JAPAN:
-			return covid19japan.NewHTTPFetcher(), nil
+func (f *FetcherFactory) ImageFetcher(ft fetcher.Type, c country.Country, source string) (fetcher.ImageFetcher, error) {
+	switch ft {
+	case fetcher.FixtureType:
+		switch c {
+		case country.JP:
+			switch source {
+			case "":
+				fallthrough
+			case jpFetcher.DATA_SOURCE_MHLW:
+				return mhlw.NewFixtureFetcher(f.FixtureDir), nil
+			}
+		case country.ID:
+			switch source {
+			case "":
+				fallthrough
+			case idFetcher.DATA_SOURCE_TWITTER:
+				return nil, fetcher.ErrNotImplemented
+			}
 		}
-		return nil, fetcher.ErrNotImplemented
-	case country.ID_INDONESIA:
-		switch source {
-		case idFetcher.DATA_SOURCE_COVID19_GO_ID:
-			return covid19goid.NewHTTPFetcher(), nil
+	case fetcher.HTTPType:
+		switch c {
+		case country.JP:
+			switch source {
+			case "":
+				fallthrough
+			case jpFetcher.DATA_SOURCE_MHLW:
+				return mhlw.NewHTTPFetcher(), nil
+			}
+		case country.ID:
+			switch source {
+			case "":
+				fallthrough
+			case idFetcher.DATA_SOURCE_TWITTER:
+				return nil, fetcher.ErrNotImplemented
+			}
 		}
-		return nil, fetcher.ErrNotImplemented
 	}
 	return nil, fetcher.ErrNotFound
 }

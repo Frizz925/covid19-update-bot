@@ -23,7 +23,7 @@ type dailyData struct {
 
 func (g *Generator) Daily(ds *data.DailySummary, comments ...string) (string, error) {
 	res, err := g.Generate(TEMPLATE_NAME_DAILY, &dailyData{
-		Country:             ds.Country,
+		Country:             ds.Country.Name(),
 		Date:                ds.DateTime.Format("Monday, January 2, 2006"),
 		Confirmed:           formatters.IntToNumber(ds.Confirmed),
 		Recovered:           formatters.IntToNumber(ds.Recovered),

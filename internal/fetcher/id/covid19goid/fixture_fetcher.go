@@ -17,9 +17,9 @@ type FixtureFetcher struct {
 func NewFixtureFetcher(dir string) *FixtureFetcher {
 	return &FixtureFetcher{
 		FixtureFetcher: fetcher.FixtureFetcher{
-			Directory: dir,
-			CountryID: country.ID_INDONESIA,
-			Source:    idFetcher.DATA_SOURCE_COVID19_GO_ID,
+			Directory:  dir,
+			Country:    country.ID,
+			SourceName: idFetcher.DATA_SOURCE_COVID19_GO_ID,
 		},
 	}
 }

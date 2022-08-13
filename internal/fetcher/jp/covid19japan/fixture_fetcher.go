@@ -1,6 +1,7 @@
 package covid19japan
 
 import (
+	"github.com/frizz925/covid19-update-bot/internal/country"
 	"github.com/frizz925/covid19-update-bot/internal/data"
 	"github.com/frizz925/covid19-update-bot/internal/data/jp/covid19japan"
 	"github.com/frizz925/covid19-update-bot/internal/fetcher"
@@ -16,9 +17,9 @@ type FixtureFetcher struct {
 func NewFixtureFetcher(dir string) *FixtureFetcher {
 	return &FixtureFetcher{
 		FixtureFetcher: fetcher.FixtureFetcher{
-			Directory: dir,
-			CountryID: "jp",
-			Source:    jpFetcher.DATA_SOURCE_COVID19JAPAN,
+			Directory:  dir,
+			Country:    country.JP,
+			SourceName: jpFetcher.DATA_SOURCE_COVID19JAPAN,
 		},
 	}
 }

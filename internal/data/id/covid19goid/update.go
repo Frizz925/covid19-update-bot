@@ -53,8 +53,7 @@ func (ur *UpdateResponse) Normalize() (*data.DailySummary, error) {
 		return nil, err
 	}
 	return &data.DailySummary{
-		Country:             country.INDONESIA,
-		CountryID:           country.ID_INDONESIA,
+		Country:             country.ID,
 		DateTime:            dt,
 		Confirmed:           ur.Update.Penambahan.JumlahPositif,
 		Recovered:           ur.Update.Penambahan.JumlahSembuh,

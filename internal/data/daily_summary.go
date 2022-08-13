@@ -1,10 +1,13 @@
 package data
 
-import "time"
+import (
+	"time"
+
+	"github.com/frizz925/covid19-update-bot/internal/country"
+)
 
 type DailySummary struct {
-	Country             string
-	CountryID           string
+	Country             country.Country
 	DateTime            time.Time
 	Confirmed           int
 	Recovered           int

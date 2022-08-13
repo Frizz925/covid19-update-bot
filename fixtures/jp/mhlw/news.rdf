@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns="http://purl.org/rss/1.0/"
+xmlns:content="http://purl.org/rss/1.0/modules/content/"
+xmlns:taxo="http://purl.org/rss/1.0/modules/taxonomy/"
+xmlns:dc="http://purl.org/dc/elements/1.1/"
+xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+xmlns:admin="http://webns.net/mvcb/"
+>
+<channel rdf:about="https://www.mhlw.go.jp/stf/news.rdf">
+<title>厚生労働省新着情報</title>
+<link>https://www.mhlw.go.jp/stf/news.rdf</link>
+<description>厚生労働省が発表する新着情報です。</description>
+<dc:date>2018-06-25T17:03:29+09:00</dc:date>
+<dc:language>ja</dc:language>
+<copyright>Copyright © Ministry of Health, Labour and Welfare, All Right reserved.</copyright>
+<admin:generatorAgent rdf:resource="https://www.mhlw.go.jp/stf/new-info/index.html"/>
+<items>
+<rdf:Seq>
+<rdf:li rdf:resource="https://www.mhlw.go.jp/stf/newpage_27398.html"/>
+<rdf:li rdf:resource="https://www.mhlw.go.jp/bunya/iryouhoken/jyuudou/ryouyouhi_kouhu_sejutsusho.html"/>
+<rdf:li rdf:resource="https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/vaccine_certificate.html"/>
+<rdf:li rdf:resource="https://www.mhlw.go.jp/stf/newpage_27380.html"/>
+<rdf:li rdf:resource="https://www.mhlw.go.jp/stf/newpage_27374.html"/>
+</rdf:Seq>
+</items>
+</channel>
+<item rdf:about="https://www.mhlw.go.jp/stf/newpage_27398.html">
+<title><![CDATA[加藤厚生労働大臣　閣議後記者会見のお知らせ]]></title>
+<link>https://www.mhlw.go.jp/stf/newpage_27398.html</link>
+<dc:creator>厚生労働省</dc:creator>
+<dc:date>2022-08-12T19:56:00+09:00</dc:date>
+</item>
+<item rdf:about="https://www.mhlw.go.jp/bunya/iryouhoken/jyuudou/ryouyouhi_kouhu_sejutsusho.html">
+<title><![CDATA[柔道整復療養費に係る明細書を無償交付する施術所について]]></title>
+<link>https://www.mhlw.go.jp/bunya/iryouhoken/jyuudou/ryouyouhi_kouhu_sejutsusho.html</link>
+<dc:creator>厚生労働省</dc:creator>
+<dc:date>2022-08-12T17:48:00+09:00</dc:date>
+</item>
+<item rdf:about="https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/vaccine_certificate.html">
+<title><![CDATA[新型コロナワクチン接種証明書のコンビニ交付 参加市町村一覧を更新しました。]]></title>
+<link>https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/vaccine_certificate.html</link>
+<dc:creator>厚生労働省</dc:creator>
+<dc:date>2022-08-12T17:30:00+09:00</dc:date>
+</item>
+<item rdf:about="https://www.mhlw.go.jp/stf/newpage_27380.html">
+<title><![CDATA[新型コロナウイルス感染症の患者等の発生について（検疫） ]]></title>
+<link>https://www.mhlw.go.jp/stf/newpage_27380.html</link>
+<dc:creator>厚生労働省</dc:creator>
+<dc:date>2022-08-12T17:00:00+09:00</dc:date>
+</item>
+<item rdf:about="https://www.mhlw.go.jp/stf/newpage_27374.html">
+<title><![CDATA[新型コロナウイルス感染症の現在の状況と厚生労働省の対応について（令和４年８月12日版）]]></title>
+<link>https://www.mhlw.go.jp/stf/newpage_27374.html</link>
+<dc:creator>厚生労働省</dc:creator>
+<dc:date>2022-08-12T17:00:00+09:00</dc:date>
+</item>
+</rdf:RDF>

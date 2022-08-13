@@ -5,6 +5,7 @@ import (
 	"io"
 	"time"
 
+	"github.com/frizz925/covid19-update-bot/internal/country"
 	"github.com/frizz925/covid19-update-bot/internal/data"
 )
 
@@ -49,8 +50,7 @@ func (ds *DailySummary) Normalize() (*data.DailySummary, error) {
 		return nil, err
 	}
 	return &data.DailySummary{
-		Country:             "Japan",
-		CountryID:           "JP",
+		Country:             country.JP,
 		DateTime:            date,
 		Confirmed:           ds.Confirmed,
 		Recovered:           ds.Recovered,

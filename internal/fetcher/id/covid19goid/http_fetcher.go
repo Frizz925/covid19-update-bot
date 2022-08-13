@@ -1,27 +1,25 @@
 package covid19goid
 
 import (
-	"io"
 	"net/http"
 
 	"github.com/frizz925/covid19-update-bot/internal/data"
 	"github.com/frizz925/covid19-update-bot/internal/data/id/covid19goid"
+	"github.com/frizz925/covid19-update-bot/internal/fetcher"
 )
 
 const API_URL = "https://data.covid19.go.id/public/api/update.json"
 
 type HTTPFetcher struct {
-	client *http.Client
+	fetcher.HTTPFetcher
 }
 
 func NewHTTPFetcher(client ...*http.Client) *HTTPFetcher {
-	hc := http.DefaultClient
+	hf := &HTTPFetcher{}
 	if len(client) > 0 {
-		hc = client[0]
+		hf.Client = client[0]
 	}
-	return &HTTPFetcher{
-		client: hc,
-	}
+	return hf
 }
 
 func (hf *HTTPFetcher) Source() string {
@@ -29,7 +27,7 @@ func (hf *HTTPFetcher) Source() string {
 }
 
 func (hf *HTTPFetcher) Update() (*covid19goid.UpdateResponse, error) {
-	rc, err := hf.fetch(API_URL)
+	rc, err := hf.Fetch(hf.Source())
 	if err != nil {
 		return nil, err
 	}
@@ -43,12 +41,4 @@ func (hf *HTTPFetcher) DailySummary() (*data.DailySummary, error) {
 		return nil, err
 	}
 	return ur.Normalize()
-}
-
-func (hf *HTTPFetcher) fetch(url string) (io.ReadCloser, error) {
-	resp, err := hf.client.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	return resp.Body, nil
 }
