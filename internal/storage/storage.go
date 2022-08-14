@@ -9,6 +9,7 @@ type Type string
 
 const (
 	Temp Type = "tmp"
+	Dir  Type = "dir"
 )
 
 type Storage interface {

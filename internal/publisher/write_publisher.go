@@ -20,25 +20,51 @@ func (wp *WritePublisher) Publish(message string) error {
 }
 
 func (wp *WritePublisher) PublishEmbed(embed *Embed) error {
-	if err := wp.Publish(embed.URL); err != nil {
-		return err
+	var author, timestamp string
+	if embed.Author.Name != "" {
+		author = fmt.Sprintf("%s (%s)", embed.Author.Name, embed.Author.URL)
 	}
-	if err := wp.Publish(embed.Title); err != nil {
-		return err
+	if !embed.Timestamp.IsZero() {
+		timestamp = embed.Timestamp.Format(time.RFC3339)
 	}
-	if err := wp.Publish(embed.Description); err != nil {
-		return err
+
+	messages := [][]string{
+		{"Author", author},
+		{"URL", embed.URL},
+		{"Title", embed.Title},
+		{"Description", embed.Description},
+		{"ImageURL", embed.ImageURL},
+		{"Footer", embed.Footer},
+		{"Timestamp", timestamp},
 	}
-	for _, field := range embed.Fields {
-		if err := wp.Publish(fmt.Sprintf("%s: %s", field.Name, field.Value)); err != nil {
+
+	messageCount := len(messages)
+	fieldCount := len(embed.Fields)
+	if fieldCount > 0 {
+		fieldMessages := make([][]string, fieldCount)
+		for idx, field := range embed.Fields {
+			fieldMessages[idx] = []string{
+				fmt.Sprintf("Field[%d]", idx),
+				fmt.Sprintf("%s: %s", field.Name, field.Value),
+			}
+		}
+
+		tmp := make([][]string, messageCount+fieldCount)
+		copy(tmp, messages[:4])
+		copy(tmp[4:], fieldMessages)
+		copy(tmp[fieldCount+4:], messages[4:])
+		messages = tmp
+	}
+
+	for _, tuple := range messages {
+		key, message := tuple[0], tuple[1]
+		if message == "" {
+			continue
+		}
+		formatted := fmt.Sprintf("%s: %s", key, message)
+		if err := wp.Publish(formatted); err != nil {
 			return err
 		}
 	}
-	if err := wp.Publish(embed.ImageURL); err != nil {
-		return err
-	}
-	if err := wp.Publish(embed.Footer); err != nil {
-		return err
-	}
-	return wp.Publish(embed.Timestamp.Format(time.RFC3339))
+	return wp.Publish("")
 }

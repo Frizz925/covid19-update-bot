@@ -34,10 +34,12 @@ func NewScraperFactory(fixtureDir string, st storage.Storage) *ScraperFactory {
 
 func (f *ScraperFactory) Create(st scraper.Type, ft fetcher.Type, c country.Country, source string) (scraper.Scraper, error) {
 	switch st {
-	case scraper.Parsed:
-		return f.ParsedScraper(ft, c, source)
 	case scraper.Image:
 		return f.ImageScraper(ft, c, source)
+	case scraper.Parsed:
+		fallthrough
+	case "":
+		return f.ParsedScraper(ft, c, source)
 	}
 	return nil, ErrNotFound
 }

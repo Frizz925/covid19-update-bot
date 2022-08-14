@@ -2,82 +2,30 @@ package storage
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"os"
 	"path"
 )
 
 type TempStorage struct {
+	fsStorage
 	dir string
 }
 
-type tempObject struct {
-	name string
-	url  string
-}
-
-type tempReader struct {
-	tempObject
-	io.ReadCloser
-}
-
 func NewTempStorage(dirs ...string) *TempStorage {
-	return &TempStorage{path.Join(dirs...)}
-}
-
-func (t *TempStorage) Read(ctx context.Context, name string) (ObjectReader, error) {
-	f, err := os.Open(t.getPath(name))
-	if err != nil {
-		return nil, err
+	return &TempStorage{
+		dir: path.Join(dirs...),
 	}
-	return &tempReader{
-		tempObject: tempObject{
-			name: f.Name(),
-			url:  t.getURL(f.Name()),
-		},
-		ReadCloser: f,
-	}, nil
 }
 
-func (t *TempStorage) Write(ctx context.Context, name string, r io.Reader) (ObjectFile, error) {
-	dirname, basename := t.getPath(path.Dir(name)), path.Base(name)
-	if _, err := os.Stat(dirname); err != nil {
-		if !os.IsNotExist(err) {
-			return nil, err
-		}
-		if err := os.MkdirAll(dirname, 0755); err != nil {
-			return nil, err
-		}
-	}
-	f, err := os.CreateTemp(dirname, "*-"+basename)
-	if err != nil {
-		return nil, err
-	}
-	if _, err := io.Copy(f, r); err != nil {
-		return nil, err
-	}
-	return &tempObject{
-		name: f.Name(),
-		url:  t.getURL(f.Name()),
-	}, nil
+func (s *TempStorage) Read(_ context.Context, name string) (ObjectReader, error) {
+	return s.read(s.getPath(name))
 }
 
-func (t *TempStorage) getPath(name string) string {
-	if t.dir != "" {
-		return path.Join(os.TempDir(), t.dir, name)
-	}
-	return path.Join(os.TempDir(), name)
+func (s *TempStorage) Write(_ context.Context, name string, r io.Reader) (ObjectFile, error) {
+	return s.write(s.getPath(name), r)
 }
 
-func (TempStorage) getURL(name string) string {
-	return fmt.Sprintf("file://%s", name)
-}
-
-func (o *tempObject) Name() string {
-	return o.name
-}
-
-func (o *tempObject) URL() string {
-	return o.url
+func (s *TempStorage) getPath(name string) string {
+	return path.Join(os.TempDir(), s.dir, name)
 }

@@ -24,16 +24,16 @@ func (f *FetcherFactory) ParsedFetcher(ft fetcher.Type, c country.Country, sourc
 		switch c {
 		case country.JP:
 			switch source {
-			case "":
-				fallthrough
 			case jpFetcher.DATA_SOURCE_COVID19JAPAN:
+				fallthrough
+			case "":
 				return covid19japan.NewFixtureFetcher(f.FixtureDir), nil
 			}
 		case country.ID:
 			switch source {
-			case "":
-				fallthrough
 			case idFetcher.DATA_SOURCE_COVID19_GO_ID:
+				fallthrough
+			case "":
 				return covid19goid.NewFixtureFetcher(f.FixtureDir), nil
 			}
 		}
@@ -41,16 +41,16 @@ func (f *FetcherFactory) ParsedFetcher(ft fetcher.Type, c country.Country, sourc
 		switch c {
 		case country.JP:
 			switch source {
-			case "":
-				fallthrough
 			case jpFetcher.DATA_SOURCE_COVID19JAPAN:
+				fallthrough
+			case "":
 				return covid19japan.NewHTTPFetcher(), nil
 			}
 		case country.ID:
 			switch source {
-			case "":
-				fallthrough
 			case idFetcher.DATA_SOURCE_COVID19_GO_ID:
+				fallthrough
+			case "":
 				return covid19goid.NewHTTPFetcher(), nil
 			}
 		}
@@ -64,16 +64,16 @@ func (f *FetcherFactory) ImageFetcher(ft fetcher.Type, c country.Country, source
 		switch c {
 		case country.JP:
 			switch source {
-			case "":
-				fallthrough
 			case jpFetcher.DATA_SOURCE_MHLW:
+				fallthrough
+			case "":
 				return mhlw.NewFixtureFetcher(f.FixtureDir), nil
 			}
 		case country.ID:
 			switch source {
-			case "":
-				fallthrough
 			case idFetcher.DATA_SOURCE_TWITTER:
+				fallthrough
+			case "":
 				return nil, fetcher.ErrNotImplemented
 			}
 		}
@@ -81,16 +81,16 @@ func (f *FetcherFactory) ImageFetcher(ft fetcher.Type, c country.Country, source
 		switch c {
 		case country.JP:
 			switch source {
-			case "":
-				fallthrough
 			case jpFetcher.DATA_SOURCE_MHLW:
+				fallthrough
+			case "":
 				return mhlw.NewHTTPFetcher(), nil
 			}
 		case country.ID:
 			switch source {
-			case "":
-				fallthrough
 			case idFetcher.DATA_SOURCE_TWITTER:
+				fallthrough
+			case "":
 				return nil, fetcher.ErrNotImplemented
 			}
 		}
