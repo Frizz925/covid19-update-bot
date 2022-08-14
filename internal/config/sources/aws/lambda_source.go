@@ -35,5 +35,14 @@ func (s *lambdaSource) Load(ctx context.Context) (*config.Config, error) {
 		}
 		cfg.Discord.ChannelIDs = cids
 	}
+	if s.event.Storage.Type != "" {
+		cfg.Storage.Type = s.event.Storage.Type
+	}
+	if s.event.Storage.S3Region != "" {
+		cfg.Storage.S3Region = s.event.Storage.S3Region
+	}
+	if s.event.Storage.S3Bucket != "" {
+		cfg.Storage.S3Bucket = s.event.Storage.S3Bucket
+	}
 	return cfg, nil
 }

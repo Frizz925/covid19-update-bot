@@ -8,7 +8,9 @@ import (
 	"path"
 )
 
-type TempStorage struct{}
+type TempStorage struct {
+	dir string
+}
 
 type tempObject struct {
 	name string
@@ -20,8 +22,8 @@ type tempReader struct {
 	io.ReadCloser
 }
 
-func NewTempStorage() *TempStorage {
-	return &TempStorage{}
+func NewTempStorage(dirs ...string) *TempStorage {
+	return &TempStorage{path.Join(dirs...)}
 }
 
 func (t *TempStorage) Read(ctx context.Context, name string) (ObjectReader, error) {
@@ -61,7 +63,10 @@ func (t *TempStorage) Write(ctx context.Context, name string, r io.Reader) (Obje
 	}, nil
 }
 
-func (TempStorage) getPath(name string) string {
+func (t *TempStorage) getPath(name string) string {
+	if t.dir != "" {
+		return path.Join(os.TempDir(), t.dir, name)
+	}
 	return path.Join(os.TempDir(), name)
 }
 

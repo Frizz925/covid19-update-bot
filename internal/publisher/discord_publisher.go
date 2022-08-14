@@ -2,6 +2,7 @@ package publisher
 
 import (
 	"log"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/frizz925/covid19-update-bot/internal/config"
@@ -36,14 +37,36 @@ func (dp *DiscordPublisher) Publish(message string) error {
 func (dp *DiscordPublisher) PublishEmbed(embed *Embed) error {
 	me := discordgo.MessageEmbed{
 		Title:       embed.Title,
-		Description: embed.Content,
-		Image: &discordgo.MessageEmbedImage{
+		Description: embed.Description,
+		URL:         embed.URL,
+	}
+	if embed.Author.Name != "" {
+		me.Author = &discordgo.MessageEmbedAuthor{
+			Name: embed.Author.Name,
+			URL:  embed.Author.URL,
+		}
+	}
+	if embed.ImageURL != "" {
+		me.Image = &discordgo.MessageEmbedImage{
 			URL: embed.ImageURL,
-		},
-		URL: embed.URL,
-		Footer: &discordgo.MessageEmbedFooter{
+		}
+	}
+	if embed.Footer != "" {
+		me.Footer = &discordgo.MessageEmbedFooter{
 			Text: embed.Footer,
-		},
+		}
+	}
+	if !embed.Timestamp.IsZero() {
+		me.Timestamp = embed.Timestamp.Format(time.RFC3339)
+	}
+	if len(embed.Fields) > 0 {
+		me.Fields = make([]*discordgo.MessageEmbedField, len(embed.Fields))
+		for idx, field := range embed.Fields {
+			me.Fields[idx] = &discordgo.MessageEmbedField{
+				Name:  field.Name,
+				Value: field.Value,
+			}
+		}
 	}
 	for _, cid := range dp.channelIDs {
 		_, err := dp.ChannelMessageSendEmbed(cid, &me)

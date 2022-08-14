@@ -21,8 +21,7 @@ import (
 )
 
 const (
-	DIR_TEMPLATES = "templates"
-	DIR_FIXTURES  = "fixtures"
+	DIR_FIXTURES = "fixtures"
 
 	ENV_CHECK_AWS_LAMBDA   = "LAMBDA_TASK_ROOT"
 	ENV_FETCH_FROM_WEB     = "FETCH_FROM_WEB"
@@ -48,9 +47,7 @@ func main() {
 		panic(err)
 	}
 
-	rcfg := &runConfig{
-		storageType: awsStorage.S3,
-	}
+	rcfg := &runConfig{}
 	if os.Getenv(ENV_FETCH_FROM_WEB) == "true" {
 		rcfg.fetcherType = fetcher.HTTPType
 	} else {
@@ -101,7 +98,7 @@ func run(ctx context.Context, rcfg *runConfig) error {
 	defer cleanup(pub)
 
 	var stg storage.Storage
-	switch rcfg.storageType {
+	switch getStorageType(rcfg.storageType, cfg.Storage.Type) {
 	case awsStorage.S3:
 		sess, err := session.NewSessionWithOptions(session.Options{
 			SharedConfigState: session.SharedConfigEnable,
@@ -111,22 +108,21 @@ func run(ctx context.Context, rcfg *runConfig) error {
 		}
 		stg = awsStorage.NewS3Storage(sess, cfg.Storage.S3Region, cfg.Storage.S3Bucket)
 	default:
-		stg = storage.NewTempStorage()
+		stg = storage.NewTempStorage(cfg.Storage.S3Bucket)
 	}
 
+	ro := routines.NewDailyUpdateRoutine()
 	fac := factory.NewScraperFactory(DIR_FIXTURES, stg)
 	for _, ds := range cfg.DataSources {
 		scr, err := fac.Create(ds.ScraperType, rcfg.fetcherType, ds.Country, ds.Source)
 		if err != nil {
 			return err
 		}
-		routineCfg := routines.DailyUpdateConfig{
-			TemplatesDir: DIR_TEMPLATES,
-			Country:      ds.Country,
-			Scraper:      scr,
-			Publisher:    pub,
+		runCfg := routines.DailyUpdateRunConfig{
+			Scraper:   scr,
+			Publisher: pub,
 		}
-		if err := routines.DailyUpdate(ctx, &routineCfg); err != nil {
+		if err := ro.Start(ctx, &runCfg); err != nil {
 			return err
 		}
 	}
@@ -137,4 +133,13 @@ func cleanup(pub publisher.Publisher) {
 	if v, ok := pub.(*publisher.DiscordPublisher); ok {
 		v.Close()
 	}
+}
+
+func getStorageType(types ...storage.Type) storage.Type {
+	for _, typ := range types {
+		if typ != "" {
+			return typ
+		}
+	}
+	return ""
 }

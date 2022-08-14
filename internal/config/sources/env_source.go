@@ -8,6 +8,7 @@ import (
 	"github.com/frizz925/covid19-update-bot/internal/config"
 	"github.com/frizz925/covid19-update-bot/internal/country"
 	"github.com/frizz925/covid19-update-bot/internal/scraper"
+	"github.com/frizz925/covid19-update-bot/internal/storage"
 )
 
 const (
@@ -16,6 +17,7 @@ const (
 	ENV_DISCORD_BOT_TOKEN   = "DISCORD_BOT_TOKEN"
 	ENV_DISCORD_CHANNEL_IDS = "DISCORD_CHANNEL_IDS"
 
+	ENV_STORAGE_TYPE      = "STORAGE_TYPE"
 	ENV_STORAGE_S3_REGION = "STORAGE_S3_REGION"
 	ENV_STORAGE_S3_BUCKET = "STORAGE_S3_BUCKET"
 )
@@ -34,6 +36,7 @@ func (es *envSource) Load(context.Context) (*config.Config, error) {
 			ChannelIDs: strings.Split(os.Getenv(ENV_DISCORD_CHANNEL_IDS), ","),
 		},
 		Storage: config.Storage{
+			Type:     storage.Type(os.Getenv(ENV_STORAGE_TYPE)),
 			S3Region: os.Getenv(ENV_STORAGE_S3_REGION),
 			S3Bucket: os.Getenv(ENV_STORAGE_S3_BUCKET),
 		},

@@ -1,6 +1,10 @@
 package publisher
 
-import "io"
+import (
+	"fmt"
+	"io"
+	"time"
+)
 
 type WritePublisher struct {
 	io.Writer
@@ -22,11 +26,19 @@ func (wp *WritePublisher) PublishEmbed(embed *Embed) error {
 	if err := wp.Publish(embed.Title); err != nil {
 		return err
 	}
-	if err := wp.Publish(embed.Content); err != nil {
+	if err := wp.Publish(embed.Description); err != nil {
 		return err
+	}
+	for _, field := range embed.Fields {
+		if err := wp.Publish(fmt.Sprintf("%s: %s", field.Name, field.Value)); err != nil {
+			return err
+		}
 	}
 	if err := wp.Publish(embed.ImageURL); err != nil {
 		return err
 	}
-	return wp.Publish(embed.Footer)
+	if err := wp.Publish(embed.Footer); err != nil {
+		return err
+	}
+	return wp.Publish(embed.Timestamp.Format(time.RFC3339))
 }

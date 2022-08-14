@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/frizz925/covid19-update-bot/internal/country"
 	"github.com/frizz925/covid19-update-bot/internal/scraper"
+	"github.com/frizz925/covid19-update-bot/internal/storage"
 )
 
 type Config struct {
@@ -23,6 +24,7 @@ type Discord struct {
 }
 
 type Storage struct {
-	S3Region string `json:"s3_region"`
-	S3Bucket string `json:"s3_bucket"`
+	Type     storage.Type `json:"type"`
+	S3Region string       `json:"s3_region"`
+	S3Bucket string       `json:"s3_bucket"`
 }

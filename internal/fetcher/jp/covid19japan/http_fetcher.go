@@ -36,7 +36,11 @@ func (hf *HTTPFetcher) SummaryLatest(ctx context.Context) (*covid19japan.Summary
 		return nil, err
 	}
 	defer resp.Body.Close()
-	return covid19japan.ParseSummaryLatest(resp.Body, hf.Source())
+	return covid19japan.ParseSummaryLatest(resp.Body, data.Source{
+		URL:     SOURCE_URL,
+		DataURL: API_URL,
+		Comment: SOURCE_COMMENT,
+	})
 }
 
 func (hf *HTTPFetcher) DailySummary(ctx context.Context) (*data.DailySummary, error) {

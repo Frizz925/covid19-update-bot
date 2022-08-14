@@ -24,7 +24,7 @@ type dailyData struct {
 func (g *Generator) Daily(ds *data.DailySummary, comments ...string) (string, error) {
 	res, err := g.Generate(TEMPLATE_NAME_DAILY, &dailyData{
 		Country:             ds.Country.Name(),
-		Date:                ds.DateTime.Format("Monday, January 2, 2006"),
+		Date:                ds.Date.Format("Monday, January 2, 2006"),
 		Confirmed:           formatters.IntToNumber(ds.Confirmed),
 		Recovered:           formatters.IntToNumber(ds.Recovered),
 		Deceased:            formatters.IntToNumber(ds.Deceased),
@@ -32,18 +32,6 @@ func (g *Generator) Daily(ds *data.DailySummary, comments ...string) (string, er
 		RecoveredCumulative: formatters.IntToNumber(ds.RecoveredCumulative),
 		DeceasedCumulative:  formatters.IntToNumber(ds.DeceasedCumulative),
 		Comment:             strings.Join(comments, "\n"),
-	})
-	if err != nil {
-		return "", err
-	}
-	return strings.TrimSpace(res), nil
-}
-
-func (g *Generator) DailyImage(dsi *data.DailySummaryImage, comments ...string) (string, error) {
-	res, err := g.Generate(TEMPLATE_NAME_DAILY, &dailyData{
-		Country: dsi.Country.Name(),
-		Date:    dsi.DateTime.Format("Monday, January 2, 2006"),
-		Comment: strings.Join(comments, "\n"),
 	})
 	if err != nil {
 		return "", err

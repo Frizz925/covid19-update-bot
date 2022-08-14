@@ -68,10 +68,17 @@ func (ms *MHLWScraper) DailySummaryImage(ctx context.Context) (*data.DailySummar
 	}
 
 	return &data.DailySummaryImage{
-		Country:  country.JP,
-		DateTime: article.Date,
+		Metadata: data.Metadata{
+			Country:   country.JP,
+			Date:      article.Date,
+			UpdatedAt: article.Date,
+			Source: data.Source{
+				URL:     article.URL,
+				DataURL: mhlw.BASE_URL + mhlw.FEED_PATH,
+				Comment: mhlw.SOURCE_COMMENT,
+			},
+		},
 		ImageURL: obj.URL(),
-		Source:   article.URL,
 	}, nil
 }
 

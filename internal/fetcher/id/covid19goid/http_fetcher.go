@@ -36,7 +36,11 @@ func (hf *HTTPFetcher) Update(ctx context.Context) (*covid19goid.UpdateResponse,
 		return nil, err
 	}
 	defer resp.Body.Close()
-	return covid19goid.ParseUpdate(resp.Body, hf.Source())
+	return covid19goid.ParseUpdate(resp.Body, data.Source{
+		URL:     SOURCE_URL,
+		DataURL: API_URL,
+		Comment: SOURCE_COMMENT,
+	})
 }
 
 func (hf *HTTPFetcher) DailySummary(ctx context.Context) (*data.DailySummary, error) {

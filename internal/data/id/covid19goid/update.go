@@ -10,8 +10,8 @@ import (
 )
 
 type UpdateResponse struct {
-	Update Update `json:"update"`
-	Source string `json:"-"`
+	Update Update      `json:"update"`
+	Source data.Source `json:"-"`
 }
 
 type Update struct {
@@ -35,7 +35,9 @@ type Total struct {
 	JumlahDirawat   int `json:"jumlah_dirawat"`
 }
 
-func ParseUpdate(r io.Reader, source string) (*UpdateResponse, error) {
+var timezone *time.Location
+
+func ParseUpdate(r io.Reader, source data.Source) (*UpdateResponse, error) {
 	ur := UpdateResponse{Source: source}
 	err := ur.Parse(r)
 	if err != nil {
@@ -49,23 +51,42 @@ func (ur *UpdateResponse) Parse(r io.Reader) error {
 }
 
 func (ur *UpdateResponse) Normalize() (*data.DailySummary, error) {
-	dt, err := parseDateTime(ur.Update.Penambahan.Created)
+	date, err := parseDate(ur.Update.Penambahan.Tanggal)
+	if err != nil {
+		return nil, err
+	}
+	updated, err := parseDateTime(ur.Update.Penambahan.Created)
 	if err != nil {
 		return nil, err
 	}
 	return &data.DailySummary{
-		Country:             country.ID,
-		DateTime:            dt,
+		Metadata: data.Metadata{
+			Country:   country.ID,
+			Date:      date,
+			UpdatedAt: updated,
+			Source:    ur.Source,
+		},
 		Confirmed:           ur.Update.Penambahan.JumlahPositif,
 		Recovered:           ur.Update.Penambahan.JumlahSembuh,
 		Deceased:            ur.Update.Penambahan.JumlahMeninggal,
 		ConfirmedCumulative: ur.Update.Total.JumlahPositif,
 		RecoveredCumulative: ur.Update.Total.JumlahSembuh,
 		DeceasedCumulative:  ur.Update.Total.JumlahMeninggal,
-		Source:              ur.Source,
 	}, nil
 }
 
+func parseDate(text string) (time.Time, error) {
+	return time.ParseInLocation("2006-01-02", text, timezone)
+}
+
 func parseDateTime(text string) (time.Time, error) {
-	return time.Parse("2006-01-02 15:04:05", text)
+	return time.ParseInLocation("2006-01-02 15:04:05", text, timezone)
+}
+
+func init() {
+	tz, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		panic(err)
+	}
+	timezone = tz
 }

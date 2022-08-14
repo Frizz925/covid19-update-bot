@@ -7,9 +7,20 @@ const (
 	JP Country = "jp"
 )
 
-var countryNameMap = map[Country]string{
-	ID: "Indonesia",
-	JP: "Japan",
+type countryExt struct {
+	Name  string
+	Emoji string
+}
+
+var countryExtMap = map[Country]*countryExt{
+	ID: {
+		Name:  "Indonesia",
+		Emoji: "🇮🇩",
+	},
+	JP: {
+		Name:  "Japan",
+		Emoji: "🇯🇵",
+	},
 }
 
 func (c Country) ID() string {
@@ -17,12 +28,24 @@ func (c Country) ID() string {
 }
 
 func (c Country) Name() string {
-	if v, ok := countryNameMap[c]; ok {
-		return v
+	if ext, ok := c.getExtended(); ok {
+		return ext.Name
+	}
+	return c.String()
+}
+
+func (c Country) Emoji() string {
+	if ext, ok := c.getExtended(); ok {
+		return ext.Emoji
 	}
 	return c.String()
 }
 
 func (c Country) String() string {
 	return string(c)
+}
+
+func (c Country) getExtended() (*countryExt, bool) {
+	v, ok := countryExtMap[c]
+	return v, ok
 }

@@ -10,22 +10,24 @@ import (
 )
 
 type SummaryLatest struct {
-	Daily  []DailySummary `json:"daily"`
-	Source string         `json:"-"`
+	Daily   []DailySummary `json:"daily"`
+	Updated string         `json:"updated"`
+	Source  data.Source    `json:"-"`
 }
 
 type DailySummary struct {
-	Confirmed           int    `json:"confirmed"`
-	Recovered           int    `json:"recovered"`
-	Deceased            int    `json:"deceased"`
-	ConfirmedCumulative int    `json:"confirmedCumulative"`
-	RecoveredCumulative int    `json:"recoveredCumulative"`
-	DeceasedCumulative  int    `json:"deceasedCumulative"`
-	Date                string `json:"date"`
-	Source              string `json:"-"`
+	Confirmed           int         `json:"confirmed"`
+	Recovered           int         `json:"recovered"`
+	Deceased            int         `json:"deceased"`
+	ConfirmedCumulative int         `json:"confirmedCumulative"`
+	RecoveredCumulative int         `json:"recoveredCumulative"`
+	DeceasedCumulative  int         `json:"deceasedCumulative"`
+	Date                string      `json:"date"`
+	Updated             string      `json:"-"`
+	Source              data.Source `json:"-"`
 }
 
-func ParseSummaryLatest(r io.Reader, source string) (*SummaryLatest, error) {
+func ParseSummaryLatest(r io.Reader, source data.Source) (*SummaryLatest, error) {
 	sl := SummaryLatest{Source: source}
 	if err := sl.Parse(r); err != nil {
 		return nil, err
@@ -44,28 +46,40 @@ func (sl *SummaryLatest) Today() *DailySummary {
 		return nil
 	}
 	ds := &sl.Daily[count-1]
+	ds.Updated = sl.Updated
 	ds.Source = sl.Source
 	return ds
 }
 
 func (ds *DailySummary) Normalize() (*data.DailySummary, error) {
-	date, err := parseDailyDate(ds.Date)
+	date, err := parseDate(ds.Date)
+	if err != nil {
+		return nil, err
+	}
+	updated, err := parseUpdatedTime(ds.Updated)
 	if err != nil {
 		return nil, err
 	}
 	return &data.DailySummary{
-		Country:             country.JP,
-		DateTime:            date,
+		Metadata: data.Metadata{
+			Country:   country.JP,
+			Date:      date,
+			UpdatedAt: updated,
+			Source:    ds.Source,
+		},
 		Confirmed:           ds.Confirmed,
 		Recovered:           ds.Recovered,
 		Deceased:            ds.Deceased,
 		ConfirmedCumulative: ds.ConfirmedCumulative,
 		RecoveredCumulative: ds.RecoveredCumulative,
 		DeceasedCumulative:  ds.DeceasedCumulative,
-		Source:              ds.Source,
 	}, nil
 }
 
-func parseDailyDate(text string) (time.Time, error) {
+func parseDate(text string) (time.Time, error) {
 	return time.Parse("2006-01-02", text)
+}
+
+func parseUpdatedTime(text string) (time.Time, error) {
+	return time.Parse("2006-01-02T15:04:05-07:00", text)
 }

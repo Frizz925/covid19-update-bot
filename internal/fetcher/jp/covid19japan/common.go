@@ -8,6 +8,8 @@ import (
 	"github.com/frizz925/covid19-update-bot/internal/fetcher"
 )
 
+const SOURCE_COMMENT = "covid19japan.com"
+
 type Fetcher interface {
 	fetcher.Fetcher
 	SummaryLatest(ctx context.Context) (*covid19japan.SummaryLatest, error)

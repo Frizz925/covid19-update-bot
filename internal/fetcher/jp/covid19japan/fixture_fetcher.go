@@ -31,12 +31,20 @@ func (f *FixtureFetcher) Source() string {
 }
 
 func (f *FixtureFetcher) SummaryLatest(ctx context.Context) (*covid19japan.SummaryLatest, error) {
-	rc, err := f.ReadFile(FIXTURE_FILE_SUMMARY_LATEST)
+	u, err := f.GetFullURL(FIXTURE_FILE_SUMMARY_LATEST)
+	if err != nil {
+		return nil, err
+	}
+	rc, err := f.ReadFile(u.Path)
 	if err != nil {
 		return nil, err
 	}
 	defer rc.Close()
-	return covid19japan.ParseSummaryLatest(rc, f.Source())
+	return covid19japan.ParseSummaryLatest(rc, data.Source{
+		URL:     SOURCE_URL,
+		DataURL: u.String(),
+		Comment: SOURCE_COMMENT + " " + fetcher.SOURCE_COMMENT_FIXTURE_SUFFIX,
+	})
 }
 
 func (f *FixtureFetcher) DailySummary(ctx context.Context) (*data.DailySummary, error) {
